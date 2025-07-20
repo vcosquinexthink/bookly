@@ -6,11 +6,11 @@ import com.bookly.catalog.infrastructure.rest.CreateBookstoreRequest
 import org.springframework.boot.test.web.client.TestRestTemplate
 
 object BookstoreTestUtil {
-    data class BookstoreTestDto(val name: String, val address: String)
+    data class BookstoreTestDto(val name: String, val location: Int)
     data class BookTestDto(val isbn: String, val title: String, val author: String)
 
     fun createBookstore(restTemplate: TestRestTemplate, dto: BookstoreTestDto): BookstoreDto {
-        val request = CreateBookstoreRequest(dto.name, dto.address)
+        val request = CreateBookstoreRequest(dto.name, dto.location)
         val response = restTemplate.postForEntity(
             "/api/bookstores/bookstores",
             request,

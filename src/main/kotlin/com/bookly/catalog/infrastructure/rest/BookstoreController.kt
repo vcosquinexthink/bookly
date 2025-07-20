@@ -13,7 +13,7 @@ class InternalBookstoreController(private val bookstoreService: BookstoreService
 
     @PostMapping
     fun createBookstore(@RequestBody request: CreateBookstoreRequest): BookstoreDto {
-        val bookstore = bookstoreService.createBookstore(request.name, Location(request.address))
+        val bookstore = bookstoreService.createBookstore(request.name, Location(request.location))
         return BookstoreDto.from(bookstore)
     }
 
@@ -22,7 +22,7 @@ class InternalBookstoreController(private val bookstoreService: BookstoreService
         @PathVariable bookstoreId: UUID,
         @RequestBody bookDto: BookDto,
         @RequestParam(required = false, defaultValue = "1") count: Int
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<Unit> {
         val book = bookDto.toBook()
         bookstoreService.addBook(bookstoreId, book, count)
         return ResponseEntity.ok().build()
@@ -31,12 +31,12 @@ class InternalBookstoreController(private val bookstoreService: BookstoreService
 
 // DTOs
 
-data class CreateBookstoreRequest(val name: String, val address: String)
+data class CreateBookstoreRequest(val name: String, val location: Int)
 
-data class BookstoreDto(val id: UUID, val name: String, val address: String) {
+data class BookstoreDto(val id: UUID, val name: String, val location: Int) {
     companion object {
         fun from(bookstore: com.bookly.catalog.domain.model.Bookstore) =
-            BookstoreDto(bookstore.id, bookstore.name, bookstore.location.address)
+            BookstoreDto(bookstore.id, bookstore.name, bookstore.location.value)
     }
 }
 
