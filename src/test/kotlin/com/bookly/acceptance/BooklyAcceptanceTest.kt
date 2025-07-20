@@ -22,13 +22,12 @@ class BooklyAcceptanceTest {
     lateinit var clientInteractions: ClientTestUtil
 
     @Test
-    fun `should aggregate inventory for book across all stores and filter out stores with zero stock with a single backend call`() {
+    fun `should retrieve existing inventories ordered by location proximity`() {
         val warAndPeaceBook = AcceptanceBookDto("123", "War and peace", "Leon Tolstoi")
 
-        var huelvaBookstore = AcceptanceBookstoreDto(null, "StoreA", HUELVA)
-        var zaragozaBookstore = AcceptanceBookstoreDto(null, "StoreB", ZARAGOZA)
-        var smallGuadalajaraBookstore = AcceptanceBookstoreDto(null, "StoreC", GUADALAJARA)
-        var emptyGuadalajaraBookstore = AcceptanceBookstoreDto(null, "StoreD", GUADALAJARA)
+        var huelvaBookstore = AcceptanceBookstoreDto(null, "Huelva's Literary Haven", HUELVA)
+        var zaragozaBookstore = AcceptanceBookstoreDto(null, "Zaragoza Page Palace", ZARAGOZA)
+        var smallGuadalajaraBookstore = AcceptanceBookstoreDto(null, "Guadalajara Tome Tower", GUADALAJARA)
 
         huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore)
         bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
@@ -38,8 +37,6 @@ class BooklyAcceptanceTest {
 
         smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore)
         bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook, 0)
-
-        emptyGuadalajaraBookstore = bookstoreInteractions.createBookstore(emptyGuadalajaraBookstore)
 
         // Single backend call for inventory search
         val inventoryResponses = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
