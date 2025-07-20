@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.test.context.ActiveProfiles
+import java.util.*
 
 val bookstoreDto = BookstoreTestDto("CentralBooks", "MainStreet")
 val bookDto = BookTestDto("9780321125217", "Domain-Driven Design", "Eric Evans")
@@ -20,6 +21,10 @@ class BooklyAcceptanceTest {
     @Autowired
     lateinit var restTemplate: TestRestTemplate
 
+    data class AcceptanceBookstoreDto(val id: UUID, val name: String, val address: String)
+    data class AcceptanceInventoryItemDto(val book: AcceptanceBookDto, val total: Int, val available: Int)
+    data class AcceptanceBookDto(val isbn: String, val title: String, val author: String)
+
     @Test
     fun `should search for books available near their location`() {
         val bookstore = createBookstore(restTemplate, bookstoreDto)
@@ -28,7 +33,7 @@ class BooklyAcceptanceTest {
         // Action: search for books by location (simulate by listing bookstores and filtering)
         val bookstoresResponse = restTemplate.getForEntity(
             "/api/public/bookstores",
-            Array<com.bookly.catalog.infrastructure.rest.BookstoreDto>::class.java
+            Array<AcceptanceBookstoreDto>::class.java
         )
         val nearbyBookstores = bookstoresResponse.body!!.filter { it.address == "MainStreet" }
 
@@ -36,7 +41,7 @@ class BooklyAcceptanceTest {
         val inventoryResponses = nearbyBookstores.map {
             restTemplate.getForEntity(
                 "/api/public/bookstores/${it.id}/inventory/$isbn",
-                com.bookly.catalog.infrastructure.rest.InventoryItemDto::class.java
+                AcceptanceInventoryItemDto::class.java
             ).body
         }.filterNotNull()
 
