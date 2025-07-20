@@ -7,9 +7,9 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
 
-data class AcceptanceBookstoreDto(val id: UUID?, val name: String, val location: Int)
-data class AcceptanceInventoryItemDto(val book: AcceptanceBookDto, val total: Int, val available: Int)
-data class AcceptanceBookDto(val isbn: String, val title: String, val author: String)
+data class BookstoreTestDto(val id: UUID?, val name: String, val location: Int)
+data class InventoryItemTestDto(val book: BookTestDto, val total: Int, val available: Int)
+data class BookTestDto(val isbn: String, val title: String, val author: String)
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -23,11 +23,11 @@ class BooklyAcceptanceTest {
 
     @Test
     fun `should retrieve existing inventories ordered by location proximity`() {
-        val warAndPeaceBook = AcceptanceBookDto("123", "War and peace", "Leon Tolstoi")
+        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
 
-        var huelvaBookstore = AcceptanceBookstoreDto(null, "Huelva's Literary Haven", HUELVA)
-        var zaragozaBookstore = AcceptanceBookstoreDto(null, "Zaragoza Page Palace", ZARAGOZA)
-        var smallGuadalajaraBookstore = AcceptanceBookstoreDto(null, "Guadalajara Tome Tower", GUADALAJARA)
+        var huelvaBookstore = BookstoreTestDto(null, "Huelva's Literary Haven", HUELVA)
+        var zaragozaBookstore = BookstoreTestDto(null, "Zaragoza Page Palace", ZARAGOZA)
+        var smallGuadalajaraBookstore = BookstoreTestDto(null, "Guadalajara Tome Tower", GUADALAJARA)
 
         huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore)
         bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
