@@ -10,10 +10,12 @@ import java.util.*
 @RestController
 @RequestMapping("/api/bookstores/bookstores")
 class InternalBookstoreController(private val bookstoreService: BookstoreService) {
-
     @PostMapping
     fun createBookstore(@RequestBody request: CreateBookstoreRequest): BookstoreDto {
-        val bookstore = bookstoreService.createBookstore(request.name, Location(request.location))
+        val bookstore = bookstoreService.createBookstore(
+            com.bookly.catalog.domain.model.valueobject.BookstoreName(request.name),
+            com.bookly.catalog.domain.model.valueobject.Location(request.location)
+        )
         return BookstoreDto.from(bookstore)
     }
 
@@ -23,35 +25,32 @@ class InternalBookstoreController(private val bookstoreService: BookstoreService
         @RequestBody bookDto: BookDto,
         @RequestParam(required = false, defaultValue = "1") count: Int
     ): ResponseEntity<Unit> {
-        val book = bookDto.toBook()
-        bookstoreService.addBook(bookstoreId, book, count)
+        bookstoreService.addBook(bookstoreId, bookDto.toBook(), count)
         return ResponseEntity.ok().build()
     }
 }
-
-// DTOs
 
 data class CreateBookstoreRequest(val name: String, val location: Int)
 
 data class BookstoreDto(val id: UUID, val name: String, val location: Int) {
     companion object {
         fun from(bookstore: com.bookly.catalog.domain.model.Bookstore) =
-            BookstoreDto(bookstore.id, bookstore.name, bookstore.location.value)
+            BookstoreDto(bookstore.id.value, bookstore.name.value, bookstore.location.value)
     }
 }
 
 data class BookDto(val isbn: String, val title: String, val author: String) {
     fun toBook(): Book = Book(
         com.bookly.catalog.domain.model.valueobject.BookId(isbn),
-        title,
-        author,
+        com.bookly.catalog.domain.model.valueobject.BookTitle(title),
+        com.bookly.catalog.domain.model.valueobject.BookAuthor(author),
         com.bookly.catalog.domain.model.RentalPolicy(
             com.bookly.catalog.domain.model.valueobject.Price(java.math.BigDecimal.ZERO, "USD"), 7
         )
     )
 
     companion object {
-        fun from(book: Book) = BookDto(book.id.isbn, book.title, book.author)
+        fun from(book: Book) = BookDto(book.id.isbn, book.title.value, book.author.value)
     }
 }
 

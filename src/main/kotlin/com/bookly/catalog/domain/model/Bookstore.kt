@@ -1,12 +1,13 @@
 package com.bookly.catalog.domain.model
 
 import com.bookly.catalog.domain.model.valueobject.BookId
+import com.bookly.catalog.domain.model.valueobject.BookstoreId
+import com.bookly.catalog.domain.model.valueobject.BookstoreName
 import com.bookly.catalog.domain.model.valueobject.Location
-import java.util.UUID
 
 class Bookstore(
-    val id: UUID,
-    val name: String,
+    val id: BookstoreId,
+    val name: BookstoreName,
     val location: Location,
     private val inventory: MutableMap<Book, Int> // Book to total count
 ) {

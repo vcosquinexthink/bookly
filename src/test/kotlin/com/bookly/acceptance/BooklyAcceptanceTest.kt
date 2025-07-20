@@ -52,4 +52,16 @@ class BooklyAcceptanceTest {
         assert(inventory.total == 3)
         assert(inventory.available == 3)
     }
+
+    // todo:
+    // given
+    // store A in location 5 with stock of 3 books of reference 123
+    // and store B in location 10 with stock of 1 books of reference 123
+    // and store C in location 7 with stock of 0 books of reference 123
+    // and store D in location 7
+    // when
+    // users in location 7 searches for book with reference 123
+    // then
+    // they should get result with total inventory of 4 and reference to store A with inventory 3
+    // and store B with inventory 1
 }
