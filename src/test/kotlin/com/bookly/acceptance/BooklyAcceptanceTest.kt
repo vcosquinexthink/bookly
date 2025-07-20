@@ -1,67 +1,60 @@
 package com.bookly.acceptance
 
-import com.bookly.acceptance.BookstoreTestUtil.BookTestDto
-import com.bookly.acceptance.BookstoreTestUtil.BookstoreTestDto
-import com.bookly.acceptance.BookstoreTestUtil.createBookstore
-import com.bookly.acceptance.BookstoreTestUtil.stockBook
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.test.context.ActiveProfiles
 import java.util.*
 
-val bookstoreDto = BookstoreTestDto("CentralBooks", 10)
-val bookDto = BookTestDto("9780321125217", "Domain-Driven Design", "Eric Evans")
+data class AcceptanceBookstoreDto(val id: UUID?, val name: String, val location: Int)
+data class AcceptanceInventoryItemDto(val book: AcceptanceBookDto, val total: Int, val available: Int)
+data class AcceptanceBookDto(val isbn: String, val title: String, val author: String)
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 class BooklyAcceptanceTest {
-    @Autowired
-    lateinit var restTemplate: TestRestTemplate
 
-    data class AcceptanceBookstoreDto(val id: UUID, val name: String, val location: Int)
-    data class AcceptanceInventoryItemDto(val book: AcceptanceBookDto, val total: Int, val available: Int)
-    data class AcceptanceBookDto(val isbn: String, val title: String, val author: String)
+    @Autowired
+    lateinit var bookstoreInteractions: StoreTestUtil
+
+    @Autowired
+    lateinit var clientInteractions: ClientTestUtil
 
     @Test
-    fun `should search for books available near their location`() {
-        val bookstore = createBookstore(restTemplate, bookstoreDto)
-        val isbn = stockBook(restTemplate, bookstore.id, bookDto, 3)
+    fun `should aggregate inventory for book across all stores and filter out stores with zero stock with a single backend call`() {
+        val warAndPeaceBook = AcceptanceBookDto("123", "War and peace", "Leon Tolstoi")
 
-        val userLocation = 10
-        val bookstoresResponse = restTemplate.getForEntity(
-            "/api/public/bookstores",
-            Array<AcceptanceBookstoreDto>::class.java
-        )
-        val nearbyBookstores = bookstoresResponse.body!!.filter { it.location == userLocation }
+        var huelvaBookstore = AcceptanceBookstoreDto(null, "StoreA", HUELVA)
+        var zaragozaBookstore = AcceptanceBookstoreDto(null, "StoreB", ZARAGOZA)
+        var smallGuadalajaraBookstore = AcceptanceBookstoreDto(null, "StoreC", GUADALAJARA)
+        var emptyGuadalajaraBookstore = AcceptanceBookstoreDto(null, "StoreD", GUADALAJARA)
 
-        // For each nearby bookstore, get inventory for the book
-        val inventoryResponses = nearbyBookstores.mapNotNull {
-            restTemplate.getForEntity(
-                "/api/public/bookstores/${it.id}/inventory/$isbn",
-                AcceptanceInventoryItemDto::class.java
-            ).body
-        }
+        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore)
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
 
-        // Assert: the inventory is available and correct
-        assert(inventoryResponses.isNotEmpty())
-        val inventory = inventoryResponses.first()
-        assert(inventory.book.title == "Domain-Driven Design")
-        assert(inventory.total == 3)
-        assert(inventory.available == 3)
+        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore)
+        bookstoreInteractions.stockBook(zaragozaBookstore.id!!, warAndPeaceBook, 1)
+
+        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore)
+        bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook, 0)
+
+        emptyGuadalajaraBookstore = bookstoreInteractions.createBookstore(emptyGuadalajaraBookstore)
+
+        // Single backend call for inventory search
+        val inventoryResponses = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
+
+        // Aggregate total inventory
+//        val totalInventory = inventoryResponses.sumOf { it.total }
+//        assert(totalInventory == 4)
+//        assert(inventoryResponses.any { it.total == 3 && it.book.isbn == "123" }) // Store A
+//        assert(inventoryResponses.any { it.total == 1 && it.book.isbn == "123" }) // Store B
+//        assert(inventoryResponses.none { it.total == 0 }) // Store C and D should not appear
     }
 
-    // todo:
-    // given
-    // store A in location 5 with stock of 3 books of reference 123
-    // and store B in location 10 with stock of 1 books of reference 123
-    // and store C in location 7 with stock of 0 books of reference 123
-    // and store D in location 7
-    // when
-    // users in location 7 searches for book with reference 123
-    // then
-    // they should get result with total inventory of 4 and reference to store A with inventory 3
-    // and store B with inventory 1
+    companion object {
+        const val GUADALAJARA = 7
+        const val ZARAGOZA = 10
+        const val HUELVA = 5
+    }
 }

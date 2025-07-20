@@ -3,10 +3,7 @@ package com.bookly.catalog.infrastructure.rest
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.Book
 import com.bookly.catalog.domain.model.RentalPolicy
-import com.bookly.catalog.domain.model.valueobject.BookAuthor
-import com.bookly.catalog.domain.model.valueobject.BookId
-import com.bookly.catalog.domain.model.valueobject.BookTitle
-import com.bookly.catalog.domain.model.valueobject.Price
+import com.bookly.catalog.domain.model.valueobject.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal.ZERO
@@ -15,12 +12,10 @@ import java.util.*
 @RestController
 @RequestMapping("/api/bookstores/bookstores")
 class InternalBookstoreController(private val bookstoreService: BookstoreService) {
+
     @PostMapping
     fun createBookstore(@RequestBody request: CreateBookstoreRequest): BookstoreDto {
-        val bookstore = bookstoreService.createBookstore(
-            com.bookly.catalog.domain.model.valueobject.BookstoreName(request.name),
-            com.bookly.catalog.domain.model.valueobject.Location(request.location)
-        )
+        val bookstore = bookstoreService.createBookstore(BookstoreName(request.name), Location(request.location))
         return BookstoreDto.from(bookstore)
     }
 

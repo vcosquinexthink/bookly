@@ -9,7 +9,7 @@ class Bookstore(
     val id: BookstoreId,
     val name: BookstoreName,
     val location: Location,
-    private val inventory: MutableMap<Book, Int> // Book to total count
+    private val inventory: MutableMap<Book, Int>
 ) {
     fun addBook(book: Book, count: Int = 1) {
         inventory[book] = (inventory[book] ?: 0) + count
