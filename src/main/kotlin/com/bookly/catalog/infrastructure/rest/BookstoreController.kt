@@ -2,9 +2,14 @@ package com.bookly.catalog.infrastructure.rest
 
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.Book
-import com.bookly.catalog.domain.model.valueobject.Location
+import com.bookly.catalog.domain.model.RentalPolicy
+import com.bookly.catalog.domain.model.valueobject.BookAuthor
+import com.bookly.catalog.domain.model.valueobject.BookId
+import com.bookly.catalog.domain.model.valueobject.BookTitle
+import com.bookly.catalog.domain.model.valueobject.Price
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.math.BigDecimal.ZERO
 import java.util.*
 
 @RestController
@@ -41,11 +46,11 @@ data class BookstoreDto(val id: UUID, val name: String, val location: Int) {
 
 data class BookDto(val isbn: String, val title: String, val author: String) {
     fun toBook(): Book = Book(
-        com.bookly.catalog.domain.model.valueobject.BookId(isbn),
-        com.bookly.catalog.domain.model.valueobject.BookTitle(title),
-        com.bookly.catalog.domain.model.valueobject.BookAuthor(author),
-        com.bookly.catalog.domain.model.RentalPolicy(
-            com.bookly.catalog.domain.model.valueobject.Price(java.math.BigDecimal.ZERO, "USD"), 7
+        BookId(isbn),
+        BookTitle(title),
+        BookAuthor(author),
+        RentalPolicy(
+            Price(ZERO, "USD"), 7
         )
     )
 
