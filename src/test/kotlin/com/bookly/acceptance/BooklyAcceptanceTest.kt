@@ -28,7 +28,7 @@ class BooklyAcceptanceTest {
     lateinit var clientInteractions: ClientTestUtil
 
     @Test
-    fun `response`() {
+    fun `should retrieve existing inventories ordered by location proximity`() {
         val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
 
         var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
