@@ -3,6 +3,7 @@ package com.bookly.catalog.infrastructure.rest
 import com.bookly.catalog.application.BookService
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.valueobject.BookId
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -19,14 +20,16 @@ class PublicBooklyController(
     fun searchInventoryByIsbnAndLocation(
         @RequestParam isbn: String,
         @RequestParam location: Int
-    ): List<InventoryItemDto> {
+    ): ResponseEntity<List<InventoryItemDto>> {
+        val book = bookService.getBookById(BookId(isbn)) ?: return ResponseEntity.notFound().build()
         val bookstoresByProximity = bookstoreService.listBookstoresOrderedByProximity(location)
-        return bookstoresByProximity.mapNotNull {
+
+        val inventoryItems = bookstoresByProximity.mapNotNull {
             val inventoryItem = it.getInventoryForBook(BookId(isbn))
             inventoryItem?.let { item ->
-                val book = bookService.getBookById(item.bookId)
-                book?.let { InventoryItemDto.from(item, book) }
+                InventoryItemDto.from(item, book)
             }
         }.filter { it.total > 0 }
+        return ResponseEntity.ok(inventoryItems)
     }
 }

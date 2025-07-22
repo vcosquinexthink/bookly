@@ -28,7 +28,7 @@ class BooklyAcceptanceTest {
     lateinit var clientInteractions: ClientTestUtil
 
     @Test
-    fun `should retrieve existing inventories ordered by location proximity`() {
+    fun `response`() {
         val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
 
         var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
@@ -36,26 +36,30 @@ class BooklyAcceptanceTest {
         var smallGuadalajaraBookstore = BookstoreTestDto("Guadalajara Tome Tower", GUADALAJARA)
 
         // given
-        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore)
+        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
         bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
-        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore)
+        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore).body!!
         bookstoreInteractions.stockBook(zaragozaBookstore.id!!, warAndPeaceBook, 1)
-        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore)
+        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore).body!!
         bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook, 0)
 
         // when
-        val inventoryResponses = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
+        val response = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
 
         // then
-        assert(inventoryResponses.size == 2) {
-            "Expected 2 inventory responses, but got ${inventoryResponses.size}: $inventoryResponses"
+        assert(response.statusCode.is2xxSuccessful) {
+            "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
+        }
+        val inventoryItems = response.body!!
+        assert(inventoryItems.size == 2) {
+            "Expected 2 inventory responses, but got ${inventoryItems.size}: $inventoryItems"
         }
         val expected = listOf(
             Triple("123", 3, "Huelva's Literary Haven"),
             Triple("123", 1, "Zaragoza Page Palace")
         )
         expected.forEachIndexed { idx, (isbn, total, name) ->
-            val actual = inventoryResponses[idx]
+            val actual = inventoryItems[idx]
             assert(actual.book.isbn == isbn) {
                 "Expected isbn $isbn at index $idx, but got ${actual.book.isbn}"
             }
@@ -66,6 +70,17 @@ class BooklyAcceptanceTest {
                 "Expected bookstore name $name at index $idx, but got ${actual.bookstore.name}"
             }
         }
+    }
+
+    @Test
+    fun `should return 400 with error message when adding book to non-existent bookstore`() {
+        val nonExistentBookstoreId = UUID.randomUUID()
+        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
+
+        val response = bookstoreInteractions.stockBook(nonExistentBookstoreId, warAndPeaceBook, 3)
+
+        assert(response.statusCode.is4xxClientError)
+        assert(response.body == "Bookstore with ID $nonExistentBookstoreId not found")
     }
 
     companion object {

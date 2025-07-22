@@ -18,9 +18,14 @@ class InternalBookstoreController(
 ) {
 
     @PostMapping
-    fun createBookstore(@RequestBody request: CreateBookstoreRequest): BookstoreDto {
-        val bookstore = bookstoreService.createBookstore(BookstoreName(request.name), Location(request.location))
-        return BookstoreDto.from(bookstore)
+    fun createBookstore(@RequestBody request: CreateBookstoreRequest): ResponseEntity<BookstoreDto> {
+        val response = BookstoreDto.from(
+            bookstoreService.createBookstore(
+                BookstoreName(request.name),
+                Location(request.location)
+            )
+        )
+        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/{bookstoreId}/stock")
@@ -28,11 +33,11 @@ class InternalBookstoreController(
         @PathVariable bookstoreId: UUID,
         @RequestBody bookDto: BookDto,
         @RequestParam(required = false, defaultValue = "1") count: Int
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<String> {
         val book = bookDto.toBook()
-        bookService.addBook(book)
+        bookService.addOrUpdateBookReference(book)
         bookstoreService.addBook(bookstoreId, book.id, count)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.ok("Book successfully stocked.")
     }
 }
 
