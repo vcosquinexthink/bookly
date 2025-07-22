@@ -1,5 +1,6 @@
 package com.bookly.catalog.infrastructure.rest
 
+import com.bookly.catalog.application.BookService
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.Book
 import com.bookly.catalog.domain.model.RentalPolicy
@@ -11,7 +12,10 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/bookstores/bookstores")
-class InternalBookstoreController(private val bookstoreService: BookstoreService) {
+class InternalBookstoreController(
+    private val bookstoreService: BookstoreService,
+    private val bookService: BookService
+) {
 
     @PostMapping
     fun createBookstore(@RequestBody request: CreateBookstoreRequest): BookstoreDto {
@@ -25,7 +29,9 @@ class InternalBookstoreController(private val bookstoreService: BookstoreService
         @RequestBody bookDto: BookDto,
         @RequestParam(required = false, defaultValue = "1") count: Int
     ): ResponseEntity<Unit> {
-        bookstoreService.addBook(bookstoreId, bookDto.toBook(), count)
+        val book = bookDto.toBook()
+        bookService.addBook(book)
+        bookstoreService.addBook(bookstoreId, book.id, count)
         return ResponseEntity.ok().build()
     }
 }
@@ -54,9 +60,14 @@ data class BookDto(val isbn: String, val title: String, val author: String) {
     }
 }
 
-data class InventoryItemDto(val book: BookDto, val total: Int, val available: Int) {
+data class InventoryItemDto(val book: BookDto, val total: Int, val available: Int, val bookstore: BookstoreDto) {
     companion object {
-        fun from(item: com.bookly.catalog.domain.model.InventoryItem) =
-            InventoryItemDto(BookDto.from(item.book), item.total, item.available)
+        fun from(item: com.bookly.catalog.domain.model.InventoryItem, book: Book) =
+            InventoryItemDto(
+                BookDto.from(book),
+                item.total,
+                item.available,
+                BookstoreDto.from(item.bookstore)
+            )
     }
 }

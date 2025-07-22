@@ -9,21 +9,17 @@ class Bookstore(
     val id: BookstoreId,
     val name: BookstoreName,
     val location: Location,
-    private val inventory: MutableMap<Book, Int>
+    private val inventory: MutableMap<BookId, Int>
 ) {
-    fun addBook(book: Book, count: Int = 1) {
-        inventory[book] = (inventory[book] ?: 0) + count
+    fun addBook(bookId: BookId, count: Int = 1) {
+        inventory[bookId] = (inventory[bookId] ?: 0) + count
     }
-    fun findBook(isbn: BookId): Book? = inventory.keys.find { it.id == isbn }
+
     fun getInventoryForBook(isbn: BookId): InventoryItem? {
-        val book = findBook(isbn) ?: return null
-        val total = inventory[book] ?: 0
+        val total = inventory[isbn] ?: return null
         // For simplicity, assume all are available
-        return InventoryItem(book, total, total)
-    }
-    fun listInventory(): List<InventoryItem> = inventory.map { (book, total) ->
-        InventoryItem(book, total, total)
+        return InventoryItem(isbn, total, total, this)
     }
 }
 
-data class InventoryItem(val book: Book, val total: Int, val available: Int)
+data class InventoryItem(val bookId: BookId, val total: Int, val available: Int, val bookstore: Bookstore)

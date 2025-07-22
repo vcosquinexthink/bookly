@@ -8,10 +8,10 @@ import com.bookly.catalog.domain.model.valueobject.BookstoreName
 import com.bookly.catalog.domain.model.valueobject.Location
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.math.abs
 
 @Service
-class BookstoreService {
-    private val bookstores = mutableListOf<Bookstore>()
+class BookstoreService(private val bookstores: MutableList<Bookstore> = mutableListOf<Bookstore>()) {
 
     fun createBookstore(name: BookstoreName, location: Location): Bookstore {
         val bookstore = Bookstore(BookstoreId(UUID.randomUUID()), name, location, mutableMapOf())
@@ -19,21 +19,16 @@ class BookstoreService {
         return bookstore
     }
 
-    fun addBook(bookstoreId: UUID, book: Book, count: Int = 1): Boolean {
+    fun addBook(bookstoreId: UUID, bookId: BookId, count: Int = 1): Boolean {
+        // todo: check if the bookstore exists, throw exception if not
         val bookstore = bookstores.find { it.id.value == bookstoreId } ?: return false
-        bookstore.addBook(book, count)
+        bookstore.addBook(bookId, count)
         return true
     }
 
-    fun getInventoryForBook(bookstoreId: UUID, isbn: BookId): com.bookly.catalog.domain.model.InventoryItem? {
-        val bookstore = bookstores.find { it.id.value == bookstoreId } ?: return null
-        return bookstore.getInventoryForBook(isbn)
-    }
-
-    fun listInventory(bookstoreId: UUID): List<com.bookly.catalog.domain.model.InventoryItem> {
-        val bookstore = bookstores.find { it.id.value == bookstoreId } ?: return emptyList()
-        return bookstore.listInventory()
-    }
-
     fun listBookstores(): List<Bookstore> = bookstores
+
+    fun listBookstoresOrderedByProximity(location: Int): List<Bookstore> {
+        return listBookstores().sortedBy { abs(it.location.value - location) }
+    }
 }
