@@ -24,6 +24,12 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
             "/api/bookstores/bookstores/$bookstoreId/stock?count=$count", request, String::class.java
         )
     }
+
+    fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemTestDto> {
+        return restTemplate.getForEntity(
+            "/api/bookstores/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
+        )
+    }
 }
 
 @Component
@@ -34,5 +40,25 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
             Array<InventoryItemTestDto>::class.java
         )
         return response
+    }
+
+    fun searchBookstoresNear(location: Int): ResponseEntity<Array<BookstoreTestDto>> {
+        val response = restTemplate.getForEntity(
+            "/api/public/bookstores/search?location=$location",
+            Array<BookstoreTestDto>::class.java
+        )
+        return response
+    }
+}
+
+fun <T> ResponseEntity<T>.assertIs2xxSuccess() {
+    assert(this.statusCode.is2xxSuccessful) {
+        "Expected HTTP status 2xx, but got ${this.statusCode.value()}"
+    }
+}
+
+fun <T> ResponseEntity<T>.assertIs4xxError() {
+    assert(this.statusCode.is4xxClientError) {
+        "Expected HTTP status 4xx, but got ${this.statusCode.value()}"
     }
 }

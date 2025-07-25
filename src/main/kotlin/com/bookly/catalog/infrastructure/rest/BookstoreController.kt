@@ -39,6 +39,23 @@ class InternalBookstoreController(
         bookstoreService.addBook(bookstoreId, book.id, count)
         return ResponseEntity.ok("Book successfully stocked.")
     }
+
+    @GetMapping("/{bookstoreId}/book/{isbn}/stock")
+    fun getBookStock(
+        @PathVariable bookstoreId: UUID,
+        @PathVariable isbn: String
+    ): ResponseEntity<InventoryItemDto> {
+        val bookstore = bookstoreService.getBookstoreById(bookstoreId)
+
+        val inventoryItem = bookstore.getInventoryForBook(BookId(isbn))
+            ?: return ResponseEntity.notFound().build()
+
+        val book = bookService.getBookById(BookId(isbn))
+            ?: return ResponseEntity.notFound().build()
+
+        val response = InventoryItemDto.from(inventoryItem, book)
+        return ResponseEntity.ok(response)
+    }
 }
 
 data class CreateBookstoreRequest(val name: String, val location: Int)

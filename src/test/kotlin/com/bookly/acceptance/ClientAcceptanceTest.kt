@@ -1,10 +1,13 @@
 package com.bookly.acceptance
 
+import com.bookly.catalog.application.BookstoreService
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.test.context.ActiveProfiles
 import java.util.*
 
 data class BookstoreTestDto(val name: String, val location: Int, val id: UUID? = null)
@@ -18,8 +21,8 @@ data class InventoryItemTestDto(
 data class BookTestDto(val isbn: String, val title: String, val author: String)
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@ActiveProfiles("test")
-class BooklyAcceptanceTest {
+@TestInstance(PER_METHOD)
+class ClientAcceptanceTest {
 
     @Autowired
     lateinit var bookstoreInteractions: StoreTestUtil
@@ -27,8 +30,16 @@ class BooklyAcceptanceTest {
     @Autowired
     lateinit var clientInteractions: ClientTestUtil
 
+    @Autowired
+    lateinit var bookstoreService: BookstoreService
+
+    @BeforeEach
+    fun setup() {
+        bookstoreService.clearBookstores()
+    }
+
     @Test
-    fun `should retrieve existing inventories ordered by location proximity`() {
+    fun `clients can search for book inventories ordered by location proximity`() {
         val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
 
         var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
@@ -73,14 +84,37 @@ class BooklyAcceptanceTest {
     }
 
     @Test
-    fun `should return 400 with error message when adding book to non-existent bookstore`() {
-        val nonExistentBookstoreId = UUID.randomUUID()
-        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
+    fun `clients can search for bookstores ordered by location proximity`() {
+        val huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
+        val zaragozaBookstore = BookstoreTestDto("Zaragoza Page Palace", ZARAGOZA)
+        val smallGuadalajaraBookstore = BookstoreTestDto("Guadalajara Tome Tower", GUADALAJARA)
 
-        val response = bookstoreInteractions.stockBook(nonExistentBookstoreId, warAndPeaceBook, 3)
+        // given
+        bookstoreInteractions.createBookstore(huelvaBookstore)
+        bookstoreInteractions.createBookstore(zaragozaBookstore)
+        bookstoreInteractions.createBookstore(smallGuadalajaraBookstore)
 
-        assert(response.statusCode.is4xxClientError)
-        assert(response.body == "Bookstore with ID $nonExistentBookstoreId not found")
+        // when
+        val response = clientInteractions.searchBookstoresNear(GUADALAJARA)
+
+        // then
+        assert(response.statusCode.is2xxSuccessful) {
+            "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
+        }
+        val bookstores = response.body!!
+        assert(bookstores.size == 3) {
+            "Expected 3 bookstores, but got ${bookstores.size}: $bookstores"
+        }
+        val expectedOrder = listOf(
+            smallGuadalajaraBookstore.name,
+            huelvaBookstore.name,
+            zaragozaBookstore.name
+        )
+        expectedOrder.forEachIndexed { idx, expectedName ->
+            assert(bookstores[idx].name == expectedName) {
+                "Expected bookstore at index $idx to be $expectedName, but got ${bookstores[idx].name}"
+            }
+        }
     }
 
     companion object {

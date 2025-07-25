@@ -23,7 +23,6 @@ class PublicBooklyController(
     ): ResponseEntity<List<InventoryItemDto>> {
         val book = bookService.getBookById(BookId(isbn)) ?: return ResponseEntity.notFound().build()
         val bookstoresByProximity = bookstoreService.listBookstoresOrderedByProximity(location)
-
         val inventoryItems = bookstoresByProximity.mapNotNull {
             val inventoryItem = it.getInventoryForBook(BookId(isbn))
             inventoryItem?.let { item ->
@@ -31,5 +30,12 @@ class PublicBooklyController(
             }
         }.filter { it.total > 0 }
         return ResponseEntity.ok(inventoryItems)
+    }
+
+    @GetMapping("/bookstores/search")
+    fun searchBookstoresByProximity(@RequestParam location: Int): ResponseEntity<List<BookstoreDto>> {
+        val bookstores = bookstoreService.listBookstoresOrderedByProximity(location)
+        val response = bookstores.map { BookstoreDto.from(it) }
+        return ResponseEntity.ok(response)
     }
 }

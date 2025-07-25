@@ -5,6 +5,7 @@ import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreName
 import com.bookly.catalog.domain.model.valueobject.Location
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.util.*
 
@@ -37,5 +38,37 @@ class BookstoreServiceTest {
         }
 
         assert("Bookstore with ID $nonExistentBookstoreId not found" == exception.message)
+    }
+
+    @Test
+    fun `should return bookstore by ID`() {
+        val service = BookstoreService(mutableListOf())
+        val bookstore = service.createBookstore(BookstoreName("Test Store"), Location(10))
+
+        val retrievedBookstore = service.getBookstoreById(bookstore.id.value)
+
+        assertNotNull(retrievedBookstore) {
+            "Expected to retrieve a bookstore, but got null"
+        }
+        assertEquals(bookstore.id, retrievedBookstore.id) {
+            "Expected bookstore ID to be ${bookstore.id}, but got ${retrievedBookstore.id}"
+        }
+        assertEquals(bookstore.name, retrievedBookstore.name) {
+            "Expected bookstore name to be ${bookstore.name}, but got ${retrievedBookstore.name}"
+        }
+    }
+
+    @Test
+    fun `should throw exception when retrieving non-existent bookstore by ID`() {
+        val service = BookstoreService(mutableListOf())
+        val nonExistentBookstoreId = UUID.randomUUID()
+
+        val exception = org.junit.jupiter.api.assertThrows<BookstoreNotFoundException> {
+            service.getBookstoreById(nonExistentBookstoreId)
+        }
+
+        assertEquals("Bookstore with ID $nonExistentBookstoreId not found", exception.message) {
+            "Expected exception message to be 'Bookstore with ID $nonExistentBookstoreId not found', but got: ${exception.message}"
+        }
     }
 }
