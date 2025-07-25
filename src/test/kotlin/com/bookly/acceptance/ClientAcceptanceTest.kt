@@ -17,6 +17,11 @@ data class InventoryItemTestDto(
     val available: Int,
     val bookstore: BookstoreTestDto
 )
+data class BookstoreInventoryItemTestDto(
+    val book: BookTestDto,
+    val total: Int,
+    val available: Int
+)
 
 data class BookTestDto(val isbn: String, val title: String, val author: String)
 
@@ -114,6 +119,40 @@ class ClientAcceptanceTest {
             assert(bookstores[idx].name == expectedName) {
                 "Expected bookstore at index $idx to be $expectedName, but got ${bookstores[idx].name}"
             }
+        }
+    }
+
+    @Test
+    fun `clients can browse a bookstore catalog`() {
+        // given
+        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
+        val pachinkoBook = BookTestDto("998", "Pachinko", "Min Jin Lee")
+        val antsBook = BookTestDto("210", "Of Ants and Dinosaurs", "Liu Cixin")
+        var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
+        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, pachinkoBook, 100)
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, antsBook, 0)
+
+
+        // when
+        val response = clientInteractions.getBookstoreCatalog(huelvaBookstore.id!!)
+
+        // then
+        assert(response.statusCode.is2xxSuccessful) {
+            "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
+        }
+        assert(response.body!!.size == 3) {
+            "Expected 3 books in catalog, but got ${response.body!!.size}: ${response.body!!}"
+        }
+        assert(response.body!!.any { it.book.isbn == warAndPeaceBook.isbn && it.total == 3 }) {
+            "Expected book '${warAndPeaceBook.isbn}' with total 3, but it was not found or had a different total."
+        }
+        assert(response.body!!.any { it.book.isbn == pachinkoBook.isbn && it.total == 100 }) {
+            "Expected book '${pachinkoBook.isbn}' with total 100, but it was not found or had a different total."
+        }
+        assert(response.body!!.any { it.book.isbn == antsBook.isbn && it.total == 0 }) {
+            "Expected book '${antsBook.isbn}' with total 0, but it was not found or had a different total."
         }
     }
 

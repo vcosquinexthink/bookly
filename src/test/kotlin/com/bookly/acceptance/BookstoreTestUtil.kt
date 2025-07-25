@@ -49,6 +49,14 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         )
         return response
     }
+
+    fun getBookstoreCatalog(storeId: UUID): ResponseEntity<Array<BookstoreInventoryItemTestDto>> {
+        val response = restTemplate.getForEntity(
+            "/api/public/bookstores/$storeId/catalog",
+            Array<BookstoreInventoryItemTestDto>::class.java
+        )
+        return response
+    }
 }
 
 fun <T> ResponseEntity<T>.assertIs2xxSuccess() {

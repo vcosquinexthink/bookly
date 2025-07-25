@@ -1,6 +1,7 @@
 package com.bookly.catalog.application
 
 import com.bookly.catalog.domain.model.Bookstore
+import com.bookly.catalog.domain.model.InventoryItem
 import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreId
 import com.bookly.catalog.domain.model.valueobject.BookstoreName
@@ -28,6 +29,10 @@ class BookstoreService(private val bookstores: MutableList<Bookstore> = mutableL
 
     fun getBookstoreById(bookstoreId: UUID): Bookstore = bookstores.find { it.id.value == bookstoreId } ?:
         throw BookstoreNotFoundException("Bookstore with ID $bookstoreId not found")
+
+    fun getCatalogByBookstoreId(bookstoreId: UUID): List<InventoryItem> {
+        return getBookstoreById(bookstoreId).getInventory()
+    }
 
     fun clearBookstores() {
         bookstores.clear()

@@ -17,8 +17,11 @@ class Bookstore(
 
     fun getInventoryForBook(isbn: BookId): InventoryItem? {
         val total = inventory[isbn] ?: return null
-        // For simplicity, assume all are available
         return InventoryItem(isbn, total, total, this)
+    }
+
+    fun getInventory(): List<InventoryItem> {
+        return inventory.map { (bookId, count) -> InventoryItem(bookId, count, count, this) }
     }
 }
 

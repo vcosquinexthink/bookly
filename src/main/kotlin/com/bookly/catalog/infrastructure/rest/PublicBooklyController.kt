@@ -4,10 +4,8 @@ import com.bookly.catalog.application.BookService
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.valueobject.BookId
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/public")
@@ -36,6 +34,17 @@ class PublicBooklyController(
     fun searchBookstoresByProximity(@RequestParam location: Int): ResponseEntity<List<BookstoreDto>> {
         val bookstores = bookstoreService.listBookstoresOrderedByProximity(location)
         val response = bookstores.map { BookstoreDto.from(it) }
+        return ResponseEntity.ok(response)
+    }
+
+    @GetMapping("/bookstores/{storeId}/catalog")
+    fun getBookstoreCatalog(@PathVariable storeId: UUID): ResponseEntity<List<InventoryItemDto>> {
+        val catalog = bookstoreService.getCatalogByBookstoreId(storeId)
+        val response = catalog.map { item ->
+            val book = bookService.getBookById(item.bookId)
+                ?: throw IllegalStateException("Book with ID ${item.bookId} not found")
+            InventoryItemDto.from(item, book)
+        }
         return ResponseEntity.ok(response)
     }
 }
