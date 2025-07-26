@@ -1,11 +1,9 @@
 package com.bookly.catalog.infrastructure.rest
 
 import com.bookly.catalog.domain.model.Book
-import com.bookly.catalog.domain.model.RentalPolicy
 import com.bookly.catalog.domain.model.valueobject.BookAuthor
 import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookTitle
-import com.bookly.catalog.domain.model.valueobject.Price
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -13,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
-import java.math.BigDecimal.ZERO
 import java.util.*
 
 @Tag(name = "Bookstores API", description = "Endpoints for managing bookstores and inventory")
@@ -78,13 +75,11 @@ data class BookstoreDto(val id: UUID, val name: String, val location: Int) {
 
 data class BookDto(val isbn: String, val title: String, val author: String) {
     fun toBook(): Book = Book(
-        BookId(isbn), BookTitle(title), BookAuthor(author), RentalPolicy(
-            Price(ZERO, "USD"), 7
-        )
+        BookId(isbn), BookTitle(title), BookAuthor(author)
     )
 
     companion object {
-        fun from(book: Book) = BookDto(book.id.isbn, book.title.value, book.author.value)
+        fun from(book: Book) = BookDto(book.getBookId().isbn, book.getTitle().value, book.getAuthor().value)
     }
 }
 

@@ -3,10 +3,29 @@ package com.bookly.catalog.domain.model
 import com.bookly.catalog.domain.model.valueobject.BookAuthor
 import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookTitle
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
+@Entity
+@Table(name = "books")
 class Book(
-    val id: BookId,
-    val title: BookTitle,
-    val author: BookAuthor,
-    val rentalPolicy: RentalPolicy
-)
+    @Id
+    @Column
+    private val idValue: String,
+    @Column(name = "title")
+    private val titleValue: String,
+    @Column(name = "author")
+    private val authorValue: String
+) {
+    constructor(bookId: BookId, title: BookTitle, author: BookAuthor) : this(
+        bookId.isbn,
+        title.value,
+        author.value
+    )
+
+    fun getBookId(): BookId = BookId(idValue)
+    fun getTitle(): BookTitle = BookTitle(titleValue)
+    fun getAuthor(): BookAuthor = BookAuthor(authorValue)
+}

@@ -36,7 +36,7 @@ class InternalBookstoreControllerImpl(
     ): ResponseEntity<String> { // todo: change to InventoryItemDto body
         val book = bookDto.toBook()
         bookService.addOrUpdateBookReference(book)
-        bookstoreService.addBook(bookstoreId, book.id, count)
+        bookstoreService.addBook(bookstoreId, book.getBookId(), count)
         return ResponseEntity.ok("Book successfully stocked.")
     }
 
