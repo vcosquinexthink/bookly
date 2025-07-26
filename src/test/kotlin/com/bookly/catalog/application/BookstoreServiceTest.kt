@@ -19,7 +19,7 @@ class BookstoreServiceTest {
         val b4 = service.createBookstore(BookstoreName("D"), Location(20))
 
         val ordered = service.listBookstoresOrderedByProximity(7)
-        val expected = listOf(b3, b2, b1, b4) // 7, 5, 10, 20
+        val expected = listOf(b3, b2, b1, b4) // 7(0), 5(2), 10(-3), 20(-13)
         assertEquals(
             expected.map { it.name.value },
             ordered.map { it.name.value },

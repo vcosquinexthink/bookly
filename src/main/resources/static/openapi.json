@@ -1,0 +1,366 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Public API",
+      "description": "Public endpoints for searching bookstores and inventory"
+    },
+    {
+      "name": "Bookstores API",
+      "description": "Endpoints for managing bookstores and inventory"
+    }
+  ],
+  "paths": {
+    "/api/bookstores/bookstores": {
+      "post": {
+        "tags": [
+          "Bookstores API"
+        ],
+        "summary": "Create a new bookstore",
+        "description": "Register a new bookstore into the system",
+        "operationId": "createBookstore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookstoreRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Bookstore created successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookstoreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookstores/bookstores/{bookstoreId}/stock": {
+      "post": {
+        "tags": [
+          "Bookstores API"
+        ],
+        "summary": "Stock a book in a bookstore",
+        "description": "Specify the number of copies of a book to stock in a bookstore. If the book does not exist, it will be created.",
+        "operationId": "stockBook",
+        "parameters": [
+          {
+            "name": "bookstoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Book stocked successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Store not found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/inventory/search": {
+      "get": {
+        "tags": [
+          "Public API"
+        ],
+        "summary": "Search inventory by ISBN and location",
+        "description": "Find available copies of a book by ISBN across bookstores, ordered by proximity to the specified location",
+        "operationId": "searchInventoryByIsbnAndLocation",
+        "parameters": [
+          {
+            "name": "isbn",
+            "in": "query",
+            "description": "ISBN of the book to search for",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "description": "Location code for proximity search",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inventory items found successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Book not found"
+          }
+        }
+      }
+    },
+    "/api/public/bookstores/{storeId}/catalog": {
+      "get": {
+        "tags": [
+          "Public API"
+        ],
+        "summary": "Get bookstore catalog",
+        "description": "Retrieve the complete catalog of books available in a specific bookstore",
+        "operationId": "getBookstoreCatalog",
+        "parameters": [
+          {
+            "name": "storeId",
+            "in": "path",
+            "description": "Unique identifier of the bookstore",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookstore catalog retrieved successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItemDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error - book reference not found"
+          }
+        }
+      }
+    },
+    "/api/public/bookstores/search": {
+      "get": {
+        "tags": [
+          "Public API"
+        ],
+        "summary": "Search bookstores by proximity",
+        "description": "Get all bookstores ordered by proximity to the specified location",
+        "operationId": "searchBookstoresByProximity",
+        "parameters": [
+          {
+            "name": "location",
+            "in": "query",
+            "description": "Location code for proximity search",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bookstores retrieved successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookstoreDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookstores/bookstores/{bookstoreId}/book/{isbn}/stock": {
+      "get": {
+        "tags": [
+          "Bookstores API"
+        ],
+        "summary": "Get book stock information",
+        "description": "Retrieve inventory information for a specific book in a bookstore",
+        "operationId": "getBookStock",
+        "parameters": [
+          {
+            "name": "bookstoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book stock retrieved successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bookstore or book not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateBookstoreRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "location",
+          "name"
+        ]
+      },
+      "BookstoreDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "id",
+          "location",
+          "name"
+        ]
+      },
+      "BookDto": {
+        "type": "object",
+        "properties": {
+          "isbn": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "author",
+          "isbn",
+          "title"
+        ]
+      },
+      "InventoryItemDto": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "$ref": "#/components/schemas/BookDto"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "available": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bookstore": {
+            "$ref": "#/components/schemas/BookstoreDto"
+          }
+        },
+        "required": [
+          "available",
+          "book",
+          "bookstore",
+          "total"
+        ]
+      }
+    }
+  }
+}

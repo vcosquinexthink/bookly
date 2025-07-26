@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal.ZERO
@@ -17,6 +18,7 @@ import java.util.*
 
 @RestController
 @RequestMapping("/api/bookstores/bookstores")
+@Tag(name = "Bookstores API", description = "Endpoints for managing bookstores and inventory")
 class InternalBookstoreController(
     private val bookstoreService: BookstoreService, private val bookService: BookService
 ) {
@@ -68,6 +70,21 @@ class InternalBookstoreController(
         return ResponseEntity.ok("Book successfully stocked.")
     }
 
+    @Operation(
+        summary = "Get book stock information",
+        description = "Retrieve inventory information for a specific book in a bookstore"
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Book stock retrieved successfully",
+            content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
+        ), ApiResponse(
+            responseCode = "404",
+            description = "Bookstore or book not found",
+            content = [Content(schema = Schema())]
+        )]
+    )
     @GetMapping("/{bookstoreId}/book/{isbn}/stock")
     fun getBookStock(
         @PathVariable bookstoreId: UUID, @PathVariable isbn: String
