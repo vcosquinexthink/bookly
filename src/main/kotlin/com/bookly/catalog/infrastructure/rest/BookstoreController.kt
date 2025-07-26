@@ -5,6 +5,8 @@ import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreName
 import com.bookly.catalog.domain.model.valueobject.Location
+import com.bookly.catalog.infrastructure.rest.BookstoreDto.Companion.fromBookstore
+import com.bookly.catalog.infrastructure.rest.InventoryItemDto.Companion.fromInventoryItemAndBook
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -17,12 +19,13 @@ class InternalBookstoreControllerImpl(
 
     @PostMapping
     override fun createBookstore(@RequestBody request: CreateBookstoreRequest): ResponseEntity<BookstoreDto> {
-        val response = BookstoreDto.from(
-            bookstoreService.createBookstore(
-                BookstoreName(request.name), Location(request.location)
+        return ResponseEntity.ok(
+            fromBookstore(
+                bookstoreService.createBookstore(
+                    BookstoreName(request.name), Location(request.location)
+                )
             )
         )
-        return ResponseEntity.ok(response)
     }
 
     @PostMapping("/{bookstoreId}/stock")
@@ -44,9 +47,8 @@ class InternalBookstoreControllerImpl(
     ): ResponseEntity<InventoryItemDto> {
         val bookstore = bookstoreService.getBookstoreById(bookstoreId)
         // todo: throw exception if not found
-        val inventoryItem = bookstore.getInventoryForBook(BookId(isbn)) ?: return ResponseEntity.notFound().build()
+        val inventoryItem = bookstore.getInventoryForBookId(BookId(isbn)) ?: return ResponseEntity.notFound().build()
         val book = bookService.getBookById(BookId(isbn)) ?: return ResponseEntity.notFound().build()
-        val response = InventoryItemDto.from(inventoryItem, book)
-        return ResponseEntity.ok(response)
+        return ResponseEntity.ok(fromInventoryItemAndBook(inventoryItem, book))
     }
 }

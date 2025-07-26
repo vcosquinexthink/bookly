@@ -1,8 +1,5 @@
 package com.bookly.catalog.infrastructure.rest
 
-import com.bookly.catalog.application.BookService
-import com.bookly.catalog.application.BookstoreService
-import com.bookly.catalog.domain.model.valueobject.BookId
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -11,16 +8,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
-@RequestMapping("/api/public")
 @Tag(name = "Public API", description = "Public endpoints for searching bookstores and inventory")
-class PublicBooklyController(
-    private val bookstoreService: BookstoreService,
-    private val bookService: BookService
-) {
+interface PublicBooklyController {
 
     @Operation(
         summary = "Search inventory by ISBN and location",
@@ -40,23 +31,12 @@ class PublicBooklyController(
             )
         ]
     )
-    @GetMapping("/inventory/search")
     fun searchInventoryByIsbnAndLocation(
         @Parameter(description = "ISBN of the book to search for", required = true)
-        @RequestParam isbn: String,
+        isbn: String,
         @Parameter(description = "Location code for proximity search", required = true)
-        @RequestParam location: Int
-    ): ResponseEntity<List<InventoryItemDto>> {
-        val book = bookService.getBookById(BookId(isbn)) ?: return ResponseEntity.notFound().build()
-        val bookstoresByProximity = bookstoreService.listBookstoresOrderedByProximity(location)
-        val inventoryItems = bookstoresByProximity.mapNotNull {
-            val inventoryItem = it.getInventoryForBook(BookId(isbn))
-            inventoryItem?.let { item ->
-                InventoryItemDto.from(item, book)
-            }
-        }.filter { it.total > 0 }
-        return ResponseEntity.ok(inventoryItems)
-    }
+        location: Int
+    ): ResponseEntity<List<InventoryItemDto>>
 
     @Operation(
         summary = "Search bookstores by proximity",
@@ -71,16 +51,10 @@ class PublicBooklyController(
             )
         ]
     )
-    @GetMapping("/bookstores/search")
     fun searchBookstoresByProximity(
         @Parameter(description = "Location code for proximity search", required = true)
-        @RequestParam location: Int
-    ): ResponseEntity<List<BookstoreDto>> {
-        val bookstores = bookstoreService.listBookstoresOrderedByProximity(location)
-        val response = bookstores.map { BookstoreDto.from(it) }
-        return ResponseEntity.ok(response)
-    }
-
+        location: Int
+    ): ResponseEntity<List<BookstoreDto>>
 
     @Operation(
         summary = "Get bookstore catalog",
@@ -100,17 +74,8 @@ class PublicBooklyController(
             )
         ]
     )
-    @GetMapping("/bookstores/{storeId}/catalog")
     fun getBookstoreCatalog(
         @Parameter(description = "Unique identifier of the bookstore", required = true)
-        @PathVariable storeId: UUID
-    ): ResponseEntity<List<InventoryItemDto>> {
-        val catalog = bookstoreService.getCatalogByBookstoreId(storeId)
-        val response = catalog.map { item ->
-            val book = bookService.getBookById(item.bookId)
-                ?: throw IllegalStateException("Book with ID ${item.bookId} not found")
-            InventoryItemDto.from(item, book)
-        }
-        return ResponseEntity.ok(response)
-    }
+        storeId: UUID
+    ): ResponseEntity<List<InventoryItemDto>>
 }

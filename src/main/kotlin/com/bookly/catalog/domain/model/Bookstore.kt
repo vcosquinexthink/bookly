@@ -15,7 +15,7 @@ class Bookstore(
         inventory[bookId] = (inventory[bookId] ?: 0) + count
     }
 
-    fun getInventoryForBook(isbn: BookId): InventoryItem? {
+    fun getInventoryForBookId(isbn: BookId): InventoryItem? {
         val total = inventory[isbn] ?: return null
         return InventoryItem(isbn, total, total, this)
     }

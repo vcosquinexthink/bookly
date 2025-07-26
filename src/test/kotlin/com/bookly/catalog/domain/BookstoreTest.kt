@@ -22,7 +22,7 @@ class BookstoreTest {
 
         bookstore.addBook(BookId("123"), 5)
 
-        val inventoryItem = bookstore.getInventoryForBook(BookId("123"))
+        val inventoryItem = bookstore.getInventoryForBookId(BookId("123"))
 
         assertEquals("123", inventoryItem?.bookId?.isbn)
         assertEquals(5, inventoryItem?.total)
@@ -36,7 +36,7 @@ class BookstoreTest {
             BookstoreId(UUID.randomUUID()), BookstoreName("Test Store"), Location(10), mutableMapOf()
         )
 
-        val inventoryItem = bookstore.getInventoryForBook(BookId("123"))
+        val inventoryItem = bookstore.getInventoryForBookId(BookId("123"))
 
         assertNull(inventoryItem)
     }
