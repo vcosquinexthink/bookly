@@ -1,6 +1,6 @@
 package com.bookly.catalog.application
 
-import com.bookly.catalog.domain.model.valueobject.BookId
+import com.bookly.book.domain.model.Book
 import com.bookly.catalog.domain.model.valueobject.BookstoreId
 import org.junit.jupiter.api.Test
 import java.util.UUID.randomUUID
@@ -10,7 +10,7 @@ class InventoryServiceTest {
     @Test
     fun `should create a new inventory`() {
         val bookstoreId = BookstoreId(randomUUID())
-        val bookId = BookId("123")
+        val bookId = Book.BookId("123")
 
         val service = InventoryService(mutableMapOf())
 
@@ -30,7 +30,7 @@ class InventoryServiceTest {
     @Test
     fun `should update an existing inventory`() {
         val bookstoreId = BookstoreId(randomUUID())
-        val bookId = BookId("123")
+        val bookId = Book.BookId("123")
 
         val service = InventoryService(mutableMapOf())
 
@@ -47,8 +47,8 @@ class InventoryServiceTest {
     @Test
     fun `should retrieve inventories for bookstore`() {
         val bookstoreId = BookstoreId(randomUUID())
-        val bookId1 = BookId("123")
-        val bookId2 = BookId("456")
+        val bookId1 = Book.BookId("123")
+        val bookId2 = Book.BookId("456")
 
         val service = InventoryService(mutableMapOf())
 

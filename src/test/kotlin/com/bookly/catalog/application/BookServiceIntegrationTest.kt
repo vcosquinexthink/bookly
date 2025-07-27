@@ -1,9 +1,8 @@
 package com.bookly.catalog.application
 
-import com.bookly.catalog.domain.model.Book
-import com.bookly.catalog.domain.model.valueobject.BookAuthor
-import com.bookly.catalog.domain.model.valueobject.BookId
-import com.bookly.catalog.domain.model.valueobject.BookTitle
+import com.bookly.book.application.BookNotFoundException
+import com.bookly.book.application.BookService
+import com.bookly.book.domain.model.Book
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -20,21 +19,21 @@ class BookServiceIntegrationTest {
 
     @Test
     fun `add and retrieve book`() {
-        val bookId = BookId("B78B6F4F-ISBN")
-        val book = Book(bookId, BookTitle("Test Book"), BookAuthor("Test Author"))
+        val bookId = Book.BookId("B78B6F4F-ISBN")
+        val book = Book(bookId, Book.BookTitle("Test Book"), Book.BookAuthor("Test Author"))
         bookService.addOrUpdateBookReference(book)
 
         val retrieved = bookService.getBookById(bookId)
 
         assertNotNull(retrieved)
-        assertEquals("Test Book", retrieved!!.getTitle().value)
-        assertEquals("Test Author", retrieved!!.getAuthor().value)
+        assertEquals("Test Book", retrieved.getTitle().value)
+        assertEquals("Test Author", retrieved.getAuthor().value)
     }
 
     @Test
     fun `non existing book`() {
         val exception = org.junit.jupiter.api.assertThrows<BookNotFoundException> {
-            bookService.getBookById(BookId("B78B6F4F-ISBN"))
+            bookService.getBookById(Book.BookId("B78B6F4F-ISBN"))
         }
         assertEquals("Book with id B78B6F4F-ISBN not found", exception.message)
     }

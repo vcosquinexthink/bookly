@@ -1,6 +1,6 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.book.infrastructure.rest
 
-import com.bookly.catalog.application.BookService
+import com.bookly.book.application.BookService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -20,4 +20,3 @@ class BookControllerImpl(
         )
     }
 }
-

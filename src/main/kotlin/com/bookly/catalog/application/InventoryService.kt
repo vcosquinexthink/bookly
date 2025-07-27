@@ -1,14 +1,14 @@
 package com.bookly.catalog.application
 
+import com.bookly.book.domain.model.Book
 import com.bookly.catalog.domain.model.InventoryItem
-import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreId
 import org.springframework.stereotype.Service
 
 @Service
-class InventoryService(private val inventories: MutableMap<Pair<BookstoreId, BookId>, InventoryItem> = mutableMapOf()) {
+class InventoryService(private val inventories: MutableMap<Pair<BookstoreId, Book.BookId>, InventoryItem> = mutableMapOf()) {
 
-    fun addInventoryItem(bookstoreId: BookstoreId, bookId: BookId, count: Int = 1): InventoryItem {
+    fun addInventoryItem(bookstoreId: BookstoreId, bookId: Book.BookId, count: Int = 1): InventoryItem {
         val key = Pair(bookstoreId, bookId)
         val previousInventory = inventories[key]
         val newTotal = (previousInventory?.total ?: 0) + count
@@ -18,7 +18,7 @@ class InventoryService(private val inventories: MutableMap<Pair<BookstoreId, Boo
         return newInventory
     }
 
-    fun getInventory(bookstoreId: BookstoreId, bookId: BookId): InventoryItem {
+    fun getInventory(bookstoreId: BookstoreId, bookId: Book.BookId): InventoryItem {
         return inventories[Pair(bookstoreId, bookId)] ?: InventoryItem(bookId, 0, 0, bookstoreId)
     }
 

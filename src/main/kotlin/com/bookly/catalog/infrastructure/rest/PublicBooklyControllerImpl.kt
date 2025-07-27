@@ -1,9 +1,9 @@
 package com.bookly.catalog.infrastructure.rest
 
-import com.bookly.catalog.application.BookService
+import com.bookly.book.application.BookService
+import com.bookly.book.domain.model.Book
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.application.InventoryService
-import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,10 +21,10 @@ class PublicBooklyControllerImpl(
     override fun searchInventoryByIsbnAndLocation(
         @RequestParam isbn: String, @RequestParam location: Int
     ): ResponseEntity<List<InventoryItemDto>> {
-        val book = bookService.getBookById(BookId(isbn))
+        val book = bookService.getBookById(Book.BookId(isbn))
         return ResponseEntity.ok(
             bookstoreService.listBookstoresOrderedByProximity(location).flatMap { bookstore ->
-                inventoryService.getInventoriesForBookstore(bookstore.id).filter { it.bookId == BookId(isbn) }
+                inventoryService.getInventoriesForBookstore(bookstore.id).filter { it.bookId == Book.BookId(isbn) }
                     .map { item -> InventoryItemDto.fromDomain(item, book, bookstore) }
             }
         )

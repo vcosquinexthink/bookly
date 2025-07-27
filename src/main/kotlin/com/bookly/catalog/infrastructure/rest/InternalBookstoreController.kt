@@ -1,6 +1,7 @@
 package com.bookly.catalog.infrastructure.rest
 
-import com.bookly.catalog.domain.model.Book
+import com.bookly.book.domain.model.Book
+import com.bookly.book.infrastructure.rest.BookDto
 import com.bookly.catalog.domain.model.Bookstore
 import com.bookly.catalog.domain.model.InventoryItem
 import io.swagger.v3.oas.annotations.Operation

@@ -1,8 +1,5 @@
-package com.bookly.catalog.domain.model
+package com.bookly.book.domain.model
 
-import com.bookly.catalog.domain.model.valueobject.BookAuthor
-import com.bookly.catalog.domain.model.valueobject.BookId
-import com.bookly.catalog.domain.model.valueobject.BookTitle
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -28,4 +25,7 @@ class Book(
     fun getBookId(): BookId = BookId(idValue)
     fun getTitle(): BookTitle = BookTitle(titleValue)
     fun getAuthor(): BookAuthor = BookAuthor(authorValue)
+    data class BookId(val isbn: String)
+    data class BookTitle(val value: String)
+    data class BookAuthor(val value: String)
 }

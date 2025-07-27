@@ -1,8 +1,7 @@
-package com.bookly.catalog.application
+package com.bookly.book.application
 
-import com.bookly.catalog.domain.model.Book
-import com.bookly.catalog.domain.model.valueobject.BookId
-import com.bookly.catalog.infrastructure.repository.BookRepository
+import com.bookly.book.domain.model.Book
+import com.bookly.book.infrastructure.repository.BookRepository
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.stereotype.Service
 
@@ -15,7 +14,7 @@ class BookService(
         return bookRepository.save(book)
     }
 
-    fun getBookById(bookId: BookId): Book {
+    fun getBookById(bookId: Book.BookId): Book {
         return try {
             bookRepository.getReferenceById(bookId.isbn)
         } catch (ex: JpaObjectRetrievalFailureException) {

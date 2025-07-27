@@ -1,9 +1,6 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.book.infrastructure.rest
 
-import com.bookly.catalog.domain.model.Book
-import com.bookly.catalog.domain.model.valueobject.BookAuthor
-import com.bookly.catalog.domain.model.valueobject.BookId
-import com.bookly.catalog.domain.model.valueobject.BookTitle
+import com.bookly.book.domain.model.Book
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -38,14 +35,12 @@ interface BookController {
     fun createBook(bookDto: BookDto): ResponseEntity<BookDto>
 }
 
-
 data class BookDto(val isbn: String, val title: String, val author: String) {
     fun toBook(): Book = Book(
-        BookId(isbn), BookTitle(title), BookAuthor(author)
+        Book.BookId(isbn), Book.BookTitle(title), Book.BookAuthor(author)
     )
 
     companion object {
         fun fromDomain(book: Book) = BookDto(book.getBookId().isbn, book.getTitle().value, book.getAuthor().value)
     }
 }
-
