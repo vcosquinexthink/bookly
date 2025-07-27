@@ -76,6 +76,6 @@ interface PublicBooklyController {
     )
     fun getBookstoreCatalog(
         @Parameter(description = "Unique identifier of the bookstore", required = true)
-        storeId: UUID
+        bookstoreId: UUID
     ): ResponseEntity<List<InventoryItemDto>>
 }

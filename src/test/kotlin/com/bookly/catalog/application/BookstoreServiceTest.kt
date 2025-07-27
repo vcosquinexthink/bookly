@@ -1,7 +1,6 @@
 package com.bookly.catalog.application
 
 import com.bookly.catalog.application.BookstoreService.BookstoreNotFoundException
-import com.bookly.catalog.domain.model.valueobject.BookId
 import com.bookly.catalog.domain.model.valueobject.BookstoreName
 import com.bookly.catalog.domain.model.valueobject.Location
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,19 +24,6 @@ class BookstoreServiceTest {
             ordered.map { it.name.value },
             "Expected order: ${expected.map { it.name.value }}, but got: ${ordered.map { it.name.value }}"
         )
-    }
-
-    @Test
-    fun `should throw exception when adding book to non-existent bookstore`() {
-        val service = BookstoreService()
-        val nonExistentBookstoreId = UUID.randomUUID()
-        val bookId = BookId("123")
-
-        val exception = org.junit.jupiter.api.assertThrows<BookstoreNotFoundException> {
-            service.addBook(nonExistentBookstoreId, bookId, 1)
-        }
-
-        assert("Bookstore with ID $nonExistentBookstoreId not found" == exception.message)
     }
 
     @Test

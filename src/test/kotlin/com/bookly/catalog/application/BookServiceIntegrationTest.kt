@@ -30,4 +30,12 @@ class BookServiceIntegrationTest {
         assertEquals("Test Book", retrieved!!.getTitle().value)
         assertEquals("Test Author", retrieved!!.getAuthor().value)
     }
+
+    @Test
+    fun `non existing book`() {
+        val exception = org.junit.jupiter.api.assertThrows<BookNotFoundException> {
+            bookService.getBookById(BookId("B78B6F4F-ISBN"))
+        }
+        assertEquals("Book with id B78B6F4F-ISBN not found", exception.message)
+    }
 }

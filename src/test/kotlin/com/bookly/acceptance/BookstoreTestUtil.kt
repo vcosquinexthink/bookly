@@ -1,6 +1,5 @@
 package com.bookly.acceptance
 
-import com.bookly.catalog.infrastructure.rest.BookDto
 import com.bookly.catalog.infrastructure.rest.CreateBookstoreRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -11,6 +10,10 @@ import java.util.*
 @Component
 class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
+    fun createBook(bookDto: BookTestDto): ResponseEntity<BookTestDto> {
+        return restTemplate.postForEntity("/api/books", bookDto, BookTestDto::class.java)
+    }
+
     fun createBookstore(dto: BookstoreTestDto): ResponseEntity<BookstoreTestDto> {
         val request = CreateBookstoreRequest(dto.name, dto.location)
         return restTemplate.postForEntity(
@@ -18,16 +21,17 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         )
     }
 
-    fun stockBook(bookstoreId: UUID, bookDto: BookTestDto, count: Int = 1): ResponseEntity<String> {
-        val request = BookDto(bookDto.isbn, bookDto.title, bookDto.author)
-        return restTemplate.postForEntity(
-            "/api/bookstores/bookstores/$bookstoreId/stock?count=$count", request, String::class.java
-        )
-    }
-
     fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.getForEntity(
             "/api/bookstores/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
+        )
+    }
+
+    fun stockBook(bookstoreId: UUID, isbn: String, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
+        return restTemplate.postForEntity(
+            "/api/bookstores/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
+            null,
+            InventoryItemTestDto::class.java
         )
     }
 }

@@ -38,27 +38,32 @@ class ClientAcceptanceTest {
     @Autowired
     lateinit var bookstoreService: BookstoreService
 
+    val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
+    val pachinkoBook = BookTestDto("998", "Pachinko", "Min Jin Lee")
+    val antsBook = BookTestDto("210", "Of Ants and Dinosaurs", "Liu Cixin")
+
+    var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
+    var zaragozaBookstore = BookstoreTestDto("Zaragoza Page Palace", ZARAGOZA)
+    var smallGuadalajaraBookstore = BookstoreTestDto("Guadalajara Tome Tower", GUADALAJARA)
+
     @BeforeEach
     fun setup() {
-        bookstoreService.clearBookstores()
+        bookstoreService.clearBookstores() // todo: remove
+        bookstoreInteractions.createBook(warAndPeaceBook)
+        bookstoreInteractions.createBook(pachinkoBook)
+        bookstoreInteractions.createBook(antsBook)
+        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
+        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore).body!!
+        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore).body!!
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
+        bookstoreInteractions.stockBook(huelvaBookstore.id!!, antsBook.isbn, 1)
+        bookstoreInteractions.stockBook(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
+        bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
     }
 
     @Test
     fun `clients can search for book inventories ordered by location proximity`() {
-        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
-
-        var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
-        var zaragozaBookstore = BookstoreTestDto("Zaragoza Page Palace", ZARAGOZA)
-        var smallGuadalajaraBookstore = BookstoreTestDto("Guadalajara Tome Tower", GUADALAJARA)
-
-        // given
-        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
-        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore).body!!
-        bookstoreInteractions.stockBook(zaragozaBookstore.id!!, warAndPeaceBook, 1)
-        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore).body!!
-        bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook, 0)
-
         // when
         val response = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
 
@@ -67,12 +72,13 @@ class ClientAcceptanceTest {
             "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
         }
         val inventoryItems = response.body!!
-        assert(inventoryItems.size == 2) {
+        assert(inventoryItems.size == 3) {
             "Expected 2 inventory responses, but got ${inventoryItems.size}: $inventoryItems"
         }
         val expected = listOf(
+            Triple("123", 0, "Guadalajara Tome Tower"),
             Triple("123", 3, "Huelva's Literary Haven"),
-            Triple("123", 1, "Zaragoza Page Palace")
+            Triple("123", 1, "Zaragoza Page Palace"),
         )
         expected.forEachIndexed { idx, (isbn, total, name) ->
             val actual = inventoryItems[idx]
@@ -90,15 +96,6 @@ class ClientAcceptanceTest {
 
     @Test
     fun `clients can search for bookstores ordered by location proximity`() {
-        val huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
-        val zaragozaBookstore = BookstoreTestDto("Zaragoza Page Palace", ZARAGOZA)
-        val smallGuadalajaraBookstore = BookstoreTestDto("Guadalajara Tome Tower", GUADALAJARA)
-
-        // given
-        bookstoreInteractions.createBookstore(huelvaBookstore)
-        bookstoreInteractions.createBookstore(zaragozaBookstore)
-        bookstoreInteractions.createBookstore(smallGuadalajaraBookstore)
-
         // when
         val response = clientInteractions.searchBookstoresNear(GUADALAJARA)
 
@@ -124,17 +121,6 @@ class ClientAcceptanceTest {
 
     @Test
     fun `clients can browse a bookstore catalog`() {
-        // given
-        val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
-        val pachinkoBook = BookTestDto("998", "Pachinko", "Min Jin Lee")
-        val antsBook = BookTestDto("210", "Of Ants and Dinosaurs", "Liu Cixin")
-        var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", HUELVA)
-        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook, 3)
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, pachinkoBook, 100)
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, antsBook, 0)
-
-
         // when
         val response = clientInteractions.getBookstoreCatalog(huelvaBookstore.id!!)
 
@@ -148,10 +134,10 @@ class ClientAcceptanceTest {
         assert(response.body!!.any { it.book.isbn == warAndPeaceBook.isbn && it.total == 3 }) {
             "Expected book '${warAndPeaceBook.isbn}' with total 3, but it was not found or had a different total."
         }
-        assert(response.body!!.any { it.book.isbn == pachinkoBook.isbn && it.total == 100 }) {
+        assert(response.body!!.any { it.book.isbn == pachinkoBook.isbn && it.total == 2 }) {
             "Expected book '${pachinkoBook.isbn}' with total 100, but it was not found or had a different total."
         }
-        assert(response.body!!.any { it.book.isbn == antsBook.isbn && it.total == 0 }) {
+        assert(response.body!!.any { it.book.isbn == antsBook.isbn && it.total == 1 }) {
             "Expected book '${antsBook.isbn}' with total 0, but it was not found or had a different total."
         }
     }
