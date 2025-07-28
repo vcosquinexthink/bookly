@@ -39,24 +39,6 @@ interface PublicBooklyController {
     ): ResponseEntity<List<InventoryItemDto>>
 
     @Operation(
-        summary = "Search bookstores by proximity",
-        description = "Get all bookstores ordered by proximity to the specified location"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Bookstores retrieved successfully",
-                content = [Content(schema = Schema(implementation = BookstoreDto::class))]
-            )
-        ]
-    )
-    fun searchBookstoresByProximity(
-        @Parameter(description = "Location code for proximity search", required = true)
-        location: Int
-    ): ResponseEntity<List<BookstoreDto>>
-
-    @Operation(
         summary = "Get bookstore catalog",
         description = "Retrieve the complete catalog of books available in a specific bookstore"
     )

@@ -30,15 +30,6 @@ class PublicBooklyControllerImpl(
         )
     }
 
-    @GetMapping("/bookstores/search")
-    override fun searchBookstoresByProximity(
-        @RequestParam location: Int
-    ): ResponseEntity<List<BookstoreDto>> {
-        return ResponseEntity.ok(
-            bookstoreService.listBookstoresOrderedByProximity(location).map { BookstoreDto.fromDomain(it) }
-        )
-    }
-
     @GetMapping("/bookstores/{bookstoreId}/catalog")
     override fun getBookstoreCatalog(
         @PathVariable bookstoreId: UUID

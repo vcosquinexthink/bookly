@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/bookly/bookstores/bookstores")
+@RequestMapping("/bookly/bookstores")
 class InventoryControllerImpl(
     private val bookstoreService: BookstoreService,
     private val bookService: BookService,

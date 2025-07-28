@@ -17,19 +17,19 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
     fun createBookstore(dto: BookstoreTestDto): ResponseEntity<BookstoreTestDto> {
         val request = CreateBookstoreRequest(dto.name, dto.location)
         return restTemplate.postForEntity(
-            "/bookly/bookstores/bookstores", request, BookstoreTestDto::class.java
+            "/bookly/bookstores", request, BookstoreTestDto::class.java
         )
     }
 
     fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.getForEntity(
-            "/bookly/bookstores/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
+            "/bookly/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
         )
     }
 
     fun stockBook(bookstoreId: UUID, isbn: String, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.postForEntity(
-            "/bookly/bookstores/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
+            "/bookly/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
             null,
             InventoryItemTestDto::class.java
         )
@@ -48,7 +48,7 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun searchBookstoresNear(location: Int): ResponseEntity<Array<BookstoreTestDto>> {
         val response = restTemplate.getForEntity(
-            "/bookly/public/bookstores/search?location=$location",
+            "/bookly/bookstores/search?location=$location",
             Array<BookstoreTestDto>::class.java
         )
         return response

@@ -5,16 +5,13 @@ import com.bookly.catalog.domain.model.BookstoreName
 import com.bookly.catalog.domain.model.Location
 import com.bookly.catalog.infrastructure.rest.BookstoreDto.Companion.fromDomain
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/bookly/bookstores/bookstores")
-class InternalBookstoreControllerImpl(
+@RequestMapping("/bookly/bookstores")
+class BookstoreControllerImpl(
     private val bookstoreService: BookstoreService,
-) : InternalBookstoreController {
+) : BookstoreController {
 
     @PostMapping
     override fun createBookstore(
@@ -22,6 +19,15 @@ class InternalBookstoreControllerImpl(
     ): ResponseEntity<BookstoreDto> {
         return ResponseEntity.ok(
             fromDomain(bookstoreService.createBookstore(BookstoreName(request.name), Location(request.location)))
+        )
+    }
+
+    @GetMapping("/search")
+    override fun searchBookstoresByProximity(
+        @RequestParam location: Int
+    ): ResponseEntity<List<BookstoreDto>> {
+        return ResponseEntity.ok(
+            bookstoreService.listBookstoresOrderedByProximity(location).map { BookstoreDto.fromDomain(it) }
         )
     }
 }
