@@ -12,16 +12,24 @@
   ],
   "tags": [
     {
+      "name": "Bookstores API",
+      "description": "Endpoints for managing bookstores"
+    },
+    {
       "name": "Public API",
       "description": "Public endpoints for searching bookstores and inventory"
     },
     {
-      "name": "Bookstores API",
-      "description": "Endpoints for managing bookstores and inventory"
+      "name": "Books API",
+      "description": "Endpoints for managing books"
+    },
+    {
+      "name": "Inventory API",
+      "description": "Endpoints for retrieving and managing inventory"
     }
   ],
   "paths": {
-    "/api/bookstores/bookstores": {
+    "/bookly/bookstores": {
       "post": {
         "tags": [
           "Bookstores API"
@@ -53,14 +61,14 @@
         }
       }
     },
-    "/api/bookstores/bookstores/{bookstoreId}/stock": {
+    "/bookly/bookstores/{bookstoreId}/book/{isbn}/stock": {
       "post": {
         "tags": [
-          "Bookstores API"
+          "Inventory API"
         ],
         "summary": "Stock a book in a bookstore",
-        "description": "Specify the number of copies of a book to stock in a bookstore. If the book does not exist, it will be created.",
-        "operationId": "stockBook",
+        "description": "Adds stock for a book in the specified bookstore.",
+        "operationId": "updateInventory",
         "parameters": [
           {
             "name": "bookstoreId",
@@ -69,6 +77,14 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -83,6 +99,43 @@
           }
         ],
         "requestBody": {
+          "description": "Number of units to stock (default: 1)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "default": "1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Book stocked successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bookstore or book not found"
+          }
+        }
+      }
+    },
+    "/bookly/books": {
+      "post": {
+        "tags": [
+          "Books API"
+        ],
+        "summary": "Create a new book",
+        "description": "Register a new book in the system",
+        "operationId": "createBook",
+        "requestBody": {
+          "description": "Book data",
           "content": {
             "application/json": {
               "schema": {
@@ -94,29 +147,22 @@
         },
         "responses": {
           "200": {
-            "description": "Book stocked successfully",
+            "description": "Book created successfully",
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/BookDto"
                 }
               }
             }
           },
           "400": {
-            "description": "Store not found",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
+            "description": "Invalid book data"
           }
         }
       }
     },
-    "/api/public/inventory/search": {
+    "/bookly/public/inventory/search": {
       "get": {
         "tags": [
           "Public API"
@@ -162,17 +208,17 @@
         }
       }
     },
-    "/api/public/bookstores/{storeId}/catalog": {
+    "/bookly/bookstores/{bookstoreId}/inventory": {
       "get": {
         "tags": [
-          "Public API"
+          "Inventory API"
         ],
-        "summary": "Get bookstore catalog",
-        "description": "Retrieve the complete catalog of books available in a specific bookstore",
-        "operationId": "getBookstoreCatalog",
+        "summary": "Get bookstore inventory",
+        "description": "Retrieve the complete inventory of books available in a specific bookstore",
+        "operationId": "getBookstoreInventory",
         "parameters": [
           {
-            "name": "storeId",
+            "name": "bookstoreId",
             "in": "path",
             "description": "Unique identifier of the bookstore",
             "required": true,
@@ -184,7 +230,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Bookstore catalog retrieved successfully",
+            "description": "Bookstore inventory retrieved successfully",
             "content": {
               "*/*": {
                 "schema": {
@@ -199,10 +245,54 @@
         }
       }
     },
-    "/api/public/bookstores/search": {
+    "/bookly/bookstores/{bookstoreId}/book/{isbn}/inventory": {
       "get": {
         "tags": [
-          "Public API"
+          "Inventory API"
+        ],
+        "summary": "Get book inventory information",
+        "description": "Retrieve inventory information for a specific book in a bookstore",
+        "operationId": "getBookInventory",
+        "parameters": [
+          {
+            "name": "bookstoreId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "isbn",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book inventory retrieved successfully",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryItemDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bookstore or book not found"
+          }
+        }
+      }
+    },
+    "/bookly/bookstores/search": {
+      "get": {
+        "tags": [
+          "Bookstores API"
         ],
         "summary": "Search bookstores by proximity",
         "description": "Get all bookstores ordered by proximity to the specified location",
@@ -229,50 +319,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/bookstores/bookstores/{bookstoreId}/book/{isbn}/stock": {
-      "get": {
-        "tags": [
-          "Bookstores API"
-        ],
-        "summary": "Get book stock information",
-        "description": "Retrieve inventory information for a specific book in a bookstore",
-        "operationId": "getBookStock",
-        "parameters": [
-          {
-            "name": "bookstoreId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "isbn",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Book stock retrieved successfully",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/InventoryItemDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Bookstore or book not found"
           }
         }
       }

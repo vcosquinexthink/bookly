@@ -6,6 +6,7 @@ import com.bookly.bookstore.domain.model.Bookstore
 import com.bookly.bookstore.infrastructure.rest.BookstoreDto
 import com.bookly.inventory.domain.model.InventoryItem
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
@@ -15,17 +16,17 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import java.util.*
 
-@Tag(name = "Bookstores API", description = "Endpoints for managing inventory")
+@Tag(name = "Inventory API", description = "Endpoints for retrieving and managing inventory")
 interface InventoryController {
 
     @Operation(
-        summary = "Get book stock information",
+        summary = "Get book inventory information",
         description = "Retrieve inventory information for a specific book in a bookstore"
     )
     @ApiResponses(
         value = [ApiResponse(
             responseCode = "200",
-            description = "Book stock retrieved successfully",
+            description = "Book inventory retrieved successfully",
             content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
         ), ApiResponse(
             responseCode = "404",
@@ -33,7 +34,7 @@ interface InventoryController {
             content = [Content(schema = Schema())]
         )]
     )
-    fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemDto>
+    fun getBookInventory(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemDto>
 
     @Operation(
         summary = "Stock a book in a bookstore",
@@ -56,7 +57,31 @@ interface InventoryController {
             )
         ]
     )
-    fun stockBook(bookstoreId: UUID, isbn: String, count: Int): ResponseEntity<InventoryItemDto>
+    fun updateInventory(bookstoreId: UUID, isbn: String, count: Int): ResponseEntity<InventoryItemDto>
+
+
+    @Operation(
+        summary = "Get bookstore inventory",
+        description = "Retrieve the complete inventory of books available in a specific bookstore"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Bookstore inventory retrieved successfully",
+                content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error - book reference not found",
+                content = [Content(schema = Schema())]
+            )
+        ]
+    )
+    fun getBookstoreInventory(
+        @Parameter(description = "Unique identifier of the bookstore", required = true)
+        bookstoreId: UUID
+    ): ResponseEntity<List<InventoryItemDto>>
 }
 
 data class InventoryItemDto(val book: BookDto, val total: Int, val available: Int, val bookstore: BookstoreDto) {

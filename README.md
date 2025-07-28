@@ -1,45 +1,40 @@
-# Bookly Catalog - Developer Guide
+# Bookly - Developer Guide
 
 ## Overview
-Bookly Catalog is a Spring Boot application for managing bookstore inventories and catalogs, following Domain-Driven Design (DDD) and Clean Architecture principles. The project is written in Kotlin and uses Gradle for builds.
+Bookly is a Spring Boot application for managing bookstore inventories and catalogs, following Domain-Driven Design (DDD) and Clean Architecture principles. The project is written in Kotlin and uses Gradle for builds.
 
 ## Code Structure
 
 ```
 com.bookly
-├── catalog
+├── book
 │   ├── domain
 │   │   ├── model
-│   │   │   ├── Book.kt
-│   │   │   ├── Bookstore.kt
-│   │   │   ├── valueobject
-│   │   │   │   ├── BookId.kt
-│   │   │   │   ├── BookstoreId.kt
-│   │   │   │   ├── BookstoreName.kt
-│   │   │   │   ├── Location.kt
-│   │   │   │   └── Price.kt
+│   │   ├── valueobject
 │   │   └── repository
 │   ├── application
-│   │   └── BookstoreService.kt
 │   └── infrastructure
+│       ├── repository
 │       └── rest
-│           ├── InternalBookstoreController.kt
-│           ├── PublicBooklyController.kt
-│           └── BookstoreDto.kt
-├── rental
+├── bookstore
 │   ├── domain
+│   │   ├── model
+│   │   ├── valueobject
+│   │   └── repository
 │   ├── application
 │   └── infrastructure
+│       ├── repository
+│       └── rest
 ├── shared
 │   ├── domain
 │   └── infrastructure
 └── BooklyApplication.kt
 ```
 
-- **Domain Layer**: Contains core business entities, value objects, and aggregates. Primitives are avoided in favor of value objects (e.g., `BookstoreId`, `BookstoreName`, `BookTitle`, `Location`).
+- **Domain Layer**: Contains core business entities, value objects, and aggregates. Primitives are avoided in favor of value objects (e.g., `BookId`, `BookstoreId`, `BookTitle`, `Location`).
 - **Application Layer**: Contains service classes orchestrating domain logic and use cases (e.g., `BookstoreService`).
 - **Infrastructure Layer**: Contains REST controllers, DTOs, and persistence adapters. Controllers are split by API audience:
-  - `/api/bookstores` for internal bookstore operations (inventory management, stocking)
+  - `/api/bookstores` for internal bookstore operations (inventory management)
   - `/api/public` for public client operations (search, discovery)
 - **Test Layer**: Acceptance tests are in `src/test/kotlin/com/bookly/acceptance`. Test utilities are split:
   - `StoreTestUtil` for bookstore operations
@@ -76,4 +71,3 @@ com.bookly
 
 ## Contact
 For questions or contributions, please contact the maintainers or open an issue in the repository.
-

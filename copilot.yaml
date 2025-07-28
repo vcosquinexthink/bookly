@@ -1,6 +1,6 @@
 version: 1
-name: bookly-catalog
-description: A Spring Boot project for managing bookstore inventories and catalogs, following a clean architecture approach.
+name: bookly
+description: A Spring Boot project for managing bookstore inventories, following a clean architecture approach.
 language: kotlin
 framework: spring-boot
 build:
@@ -17,12 +17,12 @@ environments:
     ports:
       - 8080
 directories:
-  - src/main/kotlin/com/bookly/catalog/application # Application services
-  - src/main/kotlin/com/bookly/catalog/domain/model # Domain models and value objects
-  - src/main/kotlin/com/bookly/catalog/infrastructure # Infrastructure layer
-  - src/main/kotlin/com/bookly/catalog/infrastructure/rest # REST controllers
-  - src/main/kotlin/com/bookly/catalog/infrastructure/repository # Repositories
-  - src/test/kotlin/com/bookly/catalog # Test cases
+  - src/main/kotlin/com/bookly/**/application # Application services
+  - src/main/kotlin/com/bookly/**/domain/model # Domain models and value objects
+  - src/main/kotlin/com/bookly/**/infrastructure # Infrastructure layer
+  - src/main/kotlin/com/bookly/**/infrastructure/rest # REST controllers
+  - src/main/kotlin/com/bookly/**/infrastructure/repository # Repositories
+  - src/test/kotlin/com/bookly/** # Test cases
 patterns:
   - clean-architecture
   - domain-driven-design

@@ -27,9 +27,9 @@ class BookstoreAcceptanceTest {
         bookstoreInteractions.createBook(book)
         // when
         bookstore = bookstoreInteractions.createBookstore(bookstore).body!!
-        bookstoreInteractions.stockBook(bookstore.id!!, book.isbn, 3)
+        bookstoreInteractions.updateInventory(bookstore.id!!, book.isbn, 3)
         // then
-        val inventory = bookstoreInteractions.getBookStock(bookstore.id!!, "123")
+        val inventory = bookstoreInteractions.getBookInventory(bookstore.id!!, "123")
             .also { it.assertIs2xxSuccess() }.body!!
         assert(inventory.bookstore.name == "Freshair Bookstore") {
             "Expected bookstore name to be 'Freshair Bookstore', but got '${inventory.bookstore.name}'"

@@ -29,17 +29,4 @@ class PublicBooklyControllerImpl(
             }
         )
     }
-
-    @GetMapping("/bookstores/{bookstoreId}/catalog")
-    override fun getBookstoreCatalog(
-        @PathVariable bookstoreId: UUID
-    ): ResponseEntity<List<InventoryItemDto>> {
-        val bookStore = bookstoreService.getBookstoreById(bookstoreId)
-        return ResponseEntity.ok(
-            inventoryService.getInventoriesForBookstore(BookstoreId(bookstoreId)).map { item ->
-                val book = bookService.getBookById(item.bookId)
-                InventoryItemDto.fromDomain(item, book, bookStore)
-            }
-        )
-    }
 }

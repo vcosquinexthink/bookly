@@ -37,27 +37,4 @@ interface PublicBooklyController {
         @Parameter(description = "Location code for proximity search", required = true)
         location: Int
     ): ResponseEntity<List<InventoryItemDto>>
-
-    @Operation(
-        summary = "Get bookstore catalog",
-        description = "Retrieve the complete catalog of books available in a specific bookstore"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Bookstore catalog retrieved successfully",
-                content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "Internal server error - book reference not found",
-                content = [Content(schema = Schema())]
-            )
-        ]
-    )
-    fun getBookstoreCatalog(
-        @Parameter(description = "Unique identifier of the bookstore", required = true)
-        bookstoreId: UUID
-    ): ResponseEntity<List<InventoryItemDto>>
 }

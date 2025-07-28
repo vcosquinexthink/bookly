@@ -55,11 +55,11 @@ class ClientAcceptanceTest {
         huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
         zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore).body!!
         smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore).body!!
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
-        bookstoreInteractions.stockBook(huelvaBookstore.id!!, antsBook.isbn, 1)
-        bookstoreInteractions.stockBook(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
-        bookstoreInteractions.stockBook(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
+        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
+        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
+        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, antsBook.isbn, 1)
+        bookstoreInteractions.updateInventory(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
+        bookstoreInteractions.updateInventory(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
     }
 
     @Test
@@ -120,16 +120,16 @@ class ClientAcceptanceTest {
     }
 
     @Test
-    fun `clients can browse a bookstore catalog`() {
+    fun `clients can browse a bookstore inventory`() {
         // when
-        val response = clientInteractions.getBookstoreCatalog(huelvaBookstore.id!!)
+        val response = clientInteractions.getBookstoreInventory(huelvaBookstore.id!!)
 
         // then
         assert(response.statusCode.is2xxSuccessful) {
             "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
         }
         assert(response.body!!.size == 3) {
-            "Expected 3 books in catalog, but got ${response.body!!.size}: ${response.body!!}"
+            "Expected 3 books in inventory, but got ${response.body!!.size}: ${response.body!!}"
         }
         assert(response.body!!.any { it.book.isbn == warAndPeaceBook.isbn && it.total == 3 }) {
             "Expected book '${warAndPeaceBook.isbn}' with total 3, but it was not found or had a different total."

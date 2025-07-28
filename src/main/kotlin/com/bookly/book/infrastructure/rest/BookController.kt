@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity
 interface BookController {
     @Operation(
         summary = "Create a new book",
-        description = "Register a new book in the catalog",
+        description = "Register a new book in the system",
         requestBody = RequestBody(
             description = "Book data",
             required = true,
