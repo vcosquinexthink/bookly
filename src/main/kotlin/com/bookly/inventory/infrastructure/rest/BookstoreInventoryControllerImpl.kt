@@ -2,8 +2,10 @@ package com.bookly.inventory.infrastructure.rest
 
 import com.bookly.book.application.BookService
 import com.bookly.book.domain.model.Book
+import com.bookly.book.infrastructure.rest.BookDto
 import com.bookly.bookstore.application.BookstoreService
 import com.bookly.bookstore.domain.model.BookstoreId
+import com.bookly.bookstore.infrastructure.rest.BookstoreDto
 import com.bookly.inventory.application.InventoryService
 import com.bookly.inventory.domain.model.InventoryItem
 import com.bookly.inventory.infrastructure.rest.InventoryItemDto.Companion.fromDomain
@@ -50,8 +52,28 @@ class BookstoreInventoryControllerImpl(
         return ResponseEntity.ok(
             inventoryService.getInventoriesForBookstore(BookstoreId(bookstoreId)).map { item ->
                 val book = bookService.getBookById(item.bookId)
-                InventoryItemDto.fromDomain(item, book, bookStore)
+                fromDomain(item, book, bookStore)
             }
         )
+    }
+
+    @PostMapping("/{bookstoreId}/book/{isbn}/reserve")
+    override fun reserveBook(
+        @PathVariable bookstoreId: UUID,
+        @PathVariable isbn: String
+    ): ResponseEntity<BooksReservationDto> {
+        val book = bookService.getBookById(Book.BookId(isbn))
+        val bookstore = bookstoreService.getBookstoreById(bookstoreId)
+
+        // For now, creating a mock reservation - you'll need to implement actual reservation logic
+        val reservationDto = BooksReservationDto(
+            reservationId = UUID.randomUUID(),
+            book = BookDto.fromDomain(book),
+            bookstore = BookstoreDto.fromDomain(bookstore),
+            reservedAt = java.time.LocalDateTime.now().toString(),
+            status = "RESERVED"
+        )
+
+        return ResponseEntity.ok(reservationDto)
     }
 }

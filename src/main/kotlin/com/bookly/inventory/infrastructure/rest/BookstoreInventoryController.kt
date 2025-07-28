@@ -86,6 +86,36 @@ interface BookstoreInventoryController {
         @Parameter(description = "Unique identifier of the bookstore", required = true)
         bookstoreId: UUID
     ): ResponseEntity<List<InventoryItemDto>>
+
+    @Operation(
+        summary = "Reserve a book in a bookstore",
+        description = "Reserve a copy of a specific book (by ISBN) in a bookstore, reducing the available quantity by one. The book must be in stock and available for reservation."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Book reserved successfully",
+                content = [Content(schema = Schema(implementation = BooksReservationDto::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Bookstore or book not found",
+                content = [Content(schema = Schema())]
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "Book not available for reservation (out of stock)",
+                content = [Content(schema = Schema())]
+            )
+        ]
+    )
+    fun reserveBook(
+        @Parameter(description = "Unique identifier of the bookstore", required = true)
+        bookstoreId: UUID,
+        @Parameter(description = "ISBN of the book to reserve", required = true)
+        isbn: String
+    ): ResponseEntity<BooksReservationDto>
 }
 
 data class InventoryItemDto(val book: BookDto, val total: Int, val available: Int, val bookstore: BookstoreDto) {
@@ -95,3 +125,11 @@ data class InventoryItemDto(val book: BookDto, val total: Int, val available: In
         )
     }
 }
+
+data class BooksReservationDto(
+    val reservationId: UUID,
+    val book: BookDto,
+    val bookstore: BookstoreDto,
+    val reservedAt: String,
+    val status: String
+)

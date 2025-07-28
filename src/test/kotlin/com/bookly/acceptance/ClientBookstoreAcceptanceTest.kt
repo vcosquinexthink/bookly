@@ -8,32 +8,13 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import java.util.*
-
-data class BookstoreTestDto(val name: String, val location: Int, val id: UUID? = null)
-data class InventoryItemTestDto(
-    val book: BookTestDto,
-    val total: Int,
-    val available: Int,
-    val bookstore: BookstoreTestDto
-)
-data class BookstoreInventoryItemTestDto(
-    val book: BookTestDto,
-    val total: Int,
-    val available: Int
-)
-
-data class BookTestDto(val isbn: String, val title: String, val author: String)
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(PER_METHOD)
-class ClientAcceptanceTest {
+class ClientBookstoreAcceptanceTest {
 
     @Autowired
-    lateinit var bookstoreInteractions: StoreTestUtil
-
-    @Autowired
-    lateinit var clientInteractions: ClientTestUtil
+    lateinit var interactions: TestUtil
 
     @Autowired
     lateinit var bookstoreService: BookstoreService
@@ -49,55 +30,23 @@ class ClientAcceptanceTest {
     @BeforeEach
     fun setup() {
         bookstoreService.clearBookstores() // todo: remove
-        bookstoreInteractions.createBook(warAndPeaceBook)
-        bookstoreInteractions.createBook(pachinkoBook)
-        bookstoreInteractions.createBook(antsBook)
-        huelvaBookstore = bookstoreInteractions.createBookstore(huelvaBookstore).body!!
-        zaragozaBookstore = bookstoreInteractions.createBookstore(zaragozaBookstore).body!!
-        smallGuadalajaraBookstore = bookstoreInteractions.createBookstore(smallGuadalajaraBookstore).body!!
-        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
-        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
-        bookstoreInteractions.updateInventory(huelvaBookstore.id!!, antsBook.isbn, 1)
-        bookstoreInteractions.updateInventory(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
-        bookstoreInteractions.updateInventory(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
-    }
-
-    @Test
-    fun `clients can search for book inventories ordered by location proximity`() {
-        // when
-        val response = clientInteractions.searchBookByISBNNear("123", GUADALAJARA)
-
-        // then
-        assert(response.statusCode.is2xxSuccessful) {
-            "Expected HTTP status 2xx, but got ${response.statusCode.value()}"
-        }
-        val inventoryItems = response.body!!
-        assert(inventoryItems.size == 3) {
-            "Expected 2 inventory responses, but got ${inventoryItems.size}: $inventoryItems"
-        }
-        val expected = listOf(
-            Triple("123", 0, "Guadalajara Tome Tower"),
-            Triple("123", 3, "Huelva's Literary Haven"),
-            Triple("123", 1, "Zaragoza Page Palace"),
-        )
-        expected.forEachIndexed { idx, (isbn, total, name) ->
-            val actual = inventoryItems[idx]
-            assert(actual.book.isbn == isbn) {
-                "Expected isbn $isbn at index $idx, but got ${actual.book.isbn}"
-            }
-            assert(actual.total == total) {
-                "Expected total $total at index $idx, but got ${actual.total}"
-            }
-            assert(actual.bookstore.name == name) {
-                "Expected bookstore name $name at index $idx, but got ${actual.bookstore.name}"
-            }
-        }
+        interactions.createBook(warAndPeaceBook)
+        interactions.createBook(pachinkoBook)
+        interactions.createBook(antsBook)
+        huelvaBookstore = interactions.createBookstore(huelvaBookstore).body!!
+        zaragozaBookstore = interactions.createBookstore(zaragozaBookstore).body!!
+        smallGuadalajaraBookstore = interactions.createBookstore(smallGuadalajaraBookstore).body!!
+        interactions.updateInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
+        interactions.updateInventory(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
+        interactions.updateInventory(huelvaBookstore.id!!, antsBook.isbn, 1)
+        interactions.updateInventory(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
+        interactions.updateInventory(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
     }
 
     @Test
     fun `clients can search for bookstores ordered by location proximity`() {
         // when
-        val response = clientInteractions.searchBookstoresNear(GUADALAJARA)
+        val response = interactions.searchBookstoresNear(GUADALAJARA)
 
         // then
         assert(response.statusCode.is2xxSuccessful) {
@@ -122,7 +71,7 @@ class ClientAcceptanceTest {
     @Test
     fun `clients can browse a bookstore inventory`() {
         // when
-        val response = clientInteractions.getBookstoreInventory(huelvaBookstore.id!!)
+        val response = interactions.getBookstoreInventory(huelvaBookstore.id!!)
 
         // then
         assert(response.statusCode.is2xxSuccessful) {

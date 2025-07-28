@@ -6,8 +6,29 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import java.util.*
 
+data class BookstoreTestDto(val name: String, val location: Int, val id: UUID? = null)
+
+data class InventoryItemTestDto(
+    val book: BookTestDto,
+    val total: Int,
+    val available: Int,
+    val bookstore: BookstoreTestDto
+)
+
+data class BookstoreInventoryItemTestDto(
+    val book: BookTestDto,
+    val total: Int,
+    val available: Int
+)
+
+data class BookTestDto(val isbn: String, val title: String, val author: String)
+
+data class CreateBookstoreRequestDto(val name: String, val location: Int)
+
+class BooksReservationDto(val reservationId: UUID)
+
 @Component
-class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
+class TestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun createBook(bookDto: BookTestDto): ResponseEntity<BookTestDto> {
         return restTemplate.postForEntity("/bookly/books", bookDto, BookTestDto::class.java)
@@ -33,10 +54,7 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
             InventoryItemTestDto::class.java
         )
     }
-}
 
-@Component
-class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
     fun searchBookByISBNNear(isbn: String, location: Int): ResponseEntity<Array<InventoryItemTestDto>> {
         val response = restTemplate.getForEntity(
             "/bookly/inventory/search?isbn=$isbn&location=$location",
@@ -57,6 +75,15 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         val response = restTemplate.getForEntity(
             "/bookly/bookstores/$storeId/inventory",
             Array<BookstoreInventoryItemTestDto>::class.java
+        )
+        return response
+    }
+
+    fun reserveBook(bookstoreId: UUID, isbn: String): ResponseEntity<BooksReservationDto> {
+        val response = restTemplate.postForEntity(
+            "/bookly/bookstores/$bookstoreId/book/$isbn/reserve",
+            null,
+            BooksReservationDto::class.java
         )
         return response
     }

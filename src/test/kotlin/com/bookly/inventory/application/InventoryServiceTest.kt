@@ -57,7 +57,11 @@ class InventoryServiceTest {
 
         val inventories = service.getInventoriesForBookstore(bookstoreId)
         assert(inventories.size == 2) { "Expected 2 inventory items, got ${inventories.size}" }
-        assert(inventories.any { it.bookId == bookId1 && it.total == 3 }) { "Inventory for bookId1 should have total 3" }
-        assert(inventories.any { it.bookId == bookId2 && it.total == 101 }) { "Inventory for bookId2 should have total 101" }
+        assert(inventories.any { it.bookId == bookId1 && it.total == 3 && it.available == 3 }) {
+            "Inventory for bookId1 should have total 3, available 3"
+        }
+        assert(inventories.any { it.bookId == bookId2 && it.total == 101 && it.available == 101 }) {
+            "Inventory for bookId2 should have total 101, available 101"
+        }
     }
 }

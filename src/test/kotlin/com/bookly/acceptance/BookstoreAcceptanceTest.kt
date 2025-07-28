@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles
 class BookstoreAcceptanceTest {
 
     @Autowired
-    lateinit var bookstoreInteractions: StoreTestUtil
+    lateinit var bookstoreInteractions: TestUtil
 
     @Test
     fun `bookstores can be registered`() {
@@ -42,7 +42,3 @@ class BookstoreAcceptanceTest {
         }
     }
 }
-data class CreateBookstoreRequestDto(
-    val name: String,
-    val location: Int
-)
