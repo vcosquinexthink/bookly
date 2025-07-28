@@ -39,7 +39,7 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
     fun searchBookByISBNNear(isbn: String, location: Int): ResponseEntity<Array<InventoryItemTestDto>> {
         val response = restTemplate.getForEntity(
-            "/bookly/public/inventory/search?isbn=$isbn&location=$location",
+            "/bookly/inventory/search?isbn=$isbn&location=$location",
             Array<InventoryItemTestDto>::class.java
         )
         return response

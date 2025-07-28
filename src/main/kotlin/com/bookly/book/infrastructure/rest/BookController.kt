@@ -9,25 +9,30 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 
-@Tag(name = "Books API", description = "Endpoints for managing books")
+@Tag(name = "Books API", description = "Endpoints for managing books in the catalog")
 interface BookController {
     @Operation(
         summary = "Create a new book",
-        description = "Register a new book in the system",
+        description = "Register a new book in the catalog system with ISBN, title, and author information",
         requestBody = RequestBody(
-            description = "Book data",
+            description = "Book information including ISBN, title, and author",
             required = true,
             content = [Content(schema = Schema(implementation = BookDto::class))]
         ),
         responses = [
             ApiResponse(
-                responseCode = "200",
+                responseCode = "201",
                 description = "Book created successfully",
                 content = [Content(schema = Schema(implementation = BookDto::class))]
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Invalid book data",
+                description = "Invalid book data provided",
+                content = [Content(schema = Schema())]
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "Book with this ISBN already exists",
                 content = [Content(schema = Schema())]
             )
         ]

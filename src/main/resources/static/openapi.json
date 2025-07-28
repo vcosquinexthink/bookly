@@ -12,20 +12,20 @@
   ],
   "tags": [
     {
-      "name": "Bookstores API",
-      "description": "Endpoints for managing bookstores"
-    },
-    {
-      "name": "Public API",
-      "description": "Public endpoints for searching bookstores and inventory"
-    },
-    {
       "name": "Books API",
-      "description": "Endpoints for managing books"
+      "description": "Endpoints for managing books in the catalog"
     },
     {
-      "name": "Inventory API",
-      "description": "Endpoints for retrieving and managing inventory"
+      "name": "Bookstores API",
+      "description": "Endpoints for managing bookstore locations and information"
+    },
+    {
+      "name": "Public Inventory Search API",
+      "description": "Public endpoints for searching book availability across all bookstores"
+    },
+    {
+      "name": "Bookstore Inventory API",
+      "description": "Endpoints for managing inventory within specific bookstores"
     }
   ],
   "paths": {
@@ -35,7 +35,7 @@
           "Bookstores API"
         ],
         "summary": "Create a new bookstore",
-        "description": "Register a new bookstore into the system",
+        "description": "Register a new bookstore location in the system with name and location information",
         "operationId": "createBookstore",
         "requestBody": {
           "content": {
@@ -48,7 +48,7 @@
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Bookstore created successfully",
             "content": {
               "*/*": {
@@ -57,6 +57,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid bookstore data provided"
           }
         }
       }
@@ -64,10 +67,10 @@
     "/bookly/bookstores/{bookstoreId}/book/{isbn}/stock": {
       "post": {
         "tags": [
-          "Inventory API"
+          "Bookstore Inventory API"
         ],
-        "summary": "Stock a book in a bookstore",
-        "description": "Adds stock for a book in the specified bookstore.",
+        "summary": "Add stock for a book in a bookstore",
+        "description": "Increase the inventory stock for a specific book (by ISBN) in a bookstore by the specified quantity. If the book doesn't exist in the bookstore's inventory, it will be added.",
         "operationId": "updateInventory",
         "parameters": [
           {
@@ -132,10 +135,10 @@
           "Books API"
         ],
         "summary": "Create a new book",
-        "description": "Register a new book in the system",
+        "description": "Register a new book in the catalog system with ISBN, title, and author information",
         "operationId": "createBook",
         "requestBody": {
-          "description": "Book data",
+          "description": "Book information including ISBN, title, and author",
           "content": {
             "application/json": {
               "schema": {
@@ -146,7 +149,7 @@
           "required": true
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Book created successfully",
             "content": {
               "*/*": {
@@ -157,53 +160,64 @@
             }
           },
           "400": {
-            "description": "Invalid book data"
+            "description": "Invalid book data provided"
+          },
+          "409": {
+            "description": "Book with this ISBN already exists"
           }
         }
       }
     },
-    "/bookly/public/inventory/search": {
+    "/bookly/inventory/search": {
       "get": {
         "tags": [
-          "Public API"
+          "Public Inventory Search API"
         ],
-        "summary": "Search inventory by ISBN and location",
-        "description": "Find available copies of a book by ISBN across bookstores, ordered by proximity to the specified location",
+        "summary": "Search for book availability by ISBN and location",
+        "description": "Find all available copies of a specific book (by ISBN) across all bookstores in the system, ordered by proximity to the specified location. Returns inventory details including stock levels and bookstore information.",
         "operationId": "searchInventoryByIsbnAndLocation",
         "parameters": [
           {
             "name": "isbn",
             "in": "query",
-            "description": "ISBN of the book to search for",
+            "description": "ISBN-13 or ISBN-10 of the book to search for",
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "example": "978-0134685991"
           },
           {
             "name": "location",
             "in": "query",
-            "description": "Location code for proximity search",
+            "description": "Location code for proximity-based ordering of results",
             "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "example": 12345
           }
         ],
         "responses": {
           "200": {
-            "description": "Inventory items found successfully",
+            "description": "Inventory search completed successfully. Returns list of available inventory items ordered by proximity.",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/InventoryItemDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryItemDto"
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Book not found"
+            "description": "No book found with the specified ISBN"
+          },
+          "400": {
+            "description": "Invalid ISBN format or location parameter"
           }
         }
       }
@@ -211,10 +225,10 @@
     "/bookly/bookstores/{bookstoreId}/inventory": {
       "get": {
         "tags": [
-          "Inventory API"
+          "Bookstore Inventory API"
         ],
-        "summary": "Get bookstore inventory",
-        "description": "Retrieve the complete inventory of books available in a specific bookstore",
+        "summary": "Get complete inventory for a bookstore",
+        "description": "Retrieve the full inventory list of all books available in a specific bookstore, showing stock levels and availability for each book",
         "operationId": "getBookstoreInventory",
         "parameters": [
           {
@@ -234,13 +248,19 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/InventoryItemDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InventoryItemDto"
+                  }
                 }
               }
             }
           },
+          "404": {
+            "description": "Bookstore not found"
+          },
           "500": {
-            "description": "Internal server error - book reference not found"
+            "description": "Internal server error"
           }
         }
       }
@@ -248,10 +268,10 @@
     "/bookly/bookstores/{bookstoreId}/book/{isbn}/inventory": {
       "get": {
         "tags": [
-          "Inventory API"
+          "Bookstore Inventory API"
         ],
-        "summary": "Get book inventory information",
-        "description": "Retrieve inventory information for a specific book in a bookstore",
+        "summary": "Get book inventory for a specific book in a bookstore",
+        "description": "Retrieve detailed inventory information for a specific book (by ISBN) within a particular bookstore, including total stock and available quantity",
         "operationId": "getBookInventory",
         "parameters": [
           {
@@ -294,8 +314,8 @@
         "tags": [
           "Bookstores API"
         ],
-        "summary": "Search bookstores by proximity",
-        "description": "Get all bookstores ordered by proximity to the specified location",
+        "summary": "Search bookstores by proximity to location",
+        "description": "Retrieve all bookstores in the system ordered by their proximity to a specified location code, with closest bookstores appearing first",
         "operationId": "searchBookstoresByProximity",
         "parameters": [
           {
@@ -311,14 +331,20 @@
         ],
         "responses": {
           "200": {
-            "description": "Bookstores retrieved successfully",
+            "description": "Bookstores retrieved and ordered by proximity successfully",
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/BookstoreDto"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookstoreDto"
+                  }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid location parameter provided"
           }
         }
       }

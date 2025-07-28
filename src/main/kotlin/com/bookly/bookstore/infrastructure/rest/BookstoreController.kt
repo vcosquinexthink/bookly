@@ -11,32 +11,42 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import java.util.*
 
-@Tag(name = "Bookstores API", description = "Endpoints for managing bookstores")
+@Tag(name = "Bookstores API", description = "Endpoints for managing bookstore locations and information")
 interface BookstoreController {
 
     @Operation(
-        summary = "Create a new bookstore", description = "Register a new bookstore into the system"
+        summary = "Create a new bookstore",
+        description = "Register a new bookstore location in the system with name and location information"
     )
     @ApiResponses(
         value = [ApiResponse(
-            responseCode = "200",
+            responseCode = "201",
             description = "Bookstore created successfully",
             content = [Content(schema = Schema(implementation = BookstoreDto::class))]
+        ), ApiResponse(
+            responseCode = "400",
+            description = "Invalid bookstore data provided",
+            content = [Content(schema = Schema())]
         )]
     )
     fun createBookstore(request: CreateBookstoreRequest): ResponseEntity<BookstoreDto>
 
 
     @Operation(
-        summary = "Search bookstores by proximity",
-        description = "Get all bookstores ordered by proximity to the specified location"
+        summary = "Search bookstores by proximity to location",
+        description = "Retrieve all bookstores in the system ordered by their proximity to a specified location code, with closest bookstores appearing first"
     )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Bookstores retrieved successfully",
-                content = [Content(schema = Schema(implementation = BookstoreDto::class))]
+                description = "Bookstores retrieved and ordered by proximity successfully",
+                content = [Content(schema = Schema(implementation = Array<BookstoreDto>::class))]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid location parameter provided",
+                content = [Content(schema = Schema())]
             )
         ]
     )
