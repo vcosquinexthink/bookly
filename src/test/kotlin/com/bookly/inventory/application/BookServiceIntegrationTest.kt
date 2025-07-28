@@ -1,4 +1,4 @@
-package com.bookly.catalog.application
+package com.bookly.inventory.application
 
 import com.bookly.book.application.BookNotFoundException
 import com.bookly.book.application.BookService

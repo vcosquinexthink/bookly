@@ -1,11 +1,11 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.inventory.infrastructure.rest
 
 import com.bookly.book.application.BookService
 import com.bookly.book.domain.model.Book
-import com.bookly.catalog.application.BookstoreService
-import com.bookly.catalog.application.InventoryService
-import com.bookly.catalog.domain.model.InventoryItem
-import com.bookly.catalog.infrastructure.rest.InventoryItemDto.Companion.fromDomain
+import com.bookly.bookstore.application.BookstoreService
+import com.bookly.inventory.application.InventoryService
+import com.bookly.inventory.domain.model.InventoryItem
+import com.bookly.inventory.infrastructure.rest.InventoryItemDto.Companion.fromDomain
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*

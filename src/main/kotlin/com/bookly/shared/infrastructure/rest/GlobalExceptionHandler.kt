@@ -1,7 +1,7 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.shared.infrastructure.rest
 
 import com.bookly.book.application.BookNotFoundException
-import com.bookly.catalog.application.BookstoreService
+import com.bookly.bookstore.application.BookstoreService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler

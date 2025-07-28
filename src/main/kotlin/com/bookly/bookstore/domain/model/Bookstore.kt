@@ -1,4 +1,4 @@
-package com.bookly.catalog.domain.model
+package com.bookly.bookstore.domain.model
 
 class Bookstore(
     val id: BookstoreId,

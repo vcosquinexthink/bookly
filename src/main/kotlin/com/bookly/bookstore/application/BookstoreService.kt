@@ -1,9 +1,9 @@
-package com.bookly.catalog.application
+package com.bookly.bookstore.application
 
-import com.bookly.catalog.domain.model.Bookstore
-import com.bookly.catalog.domain.model.BookstoreId
-import com.bookly.catalog.domain.model.BookstoreName
-import com.bookly.catalog.domain.model.Location
+import com.bookly.bookstore.domain.model.Bookstore
+import com.bookly.bookstore.domain.model.BookstoreId
+import com.bookly.bookstore.domain.model.BookstoreName
+import com.bookly.bookstore.domain.model.Location
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.math.abs

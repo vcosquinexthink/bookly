@@ -1,6 +1,6 @@
 package com.bookly.acceptance
 
-import com.bookly.catalog.application.BookstoreService
+import com.bookly.bookstore.application.BookstoreService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

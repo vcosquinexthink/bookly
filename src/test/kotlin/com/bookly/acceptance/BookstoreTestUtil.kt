@@ -1,6 +1,5 @@
 package com.bookly.acceptance
 
-import com.bookly.catalog.infrastructure.rest.CreateBookstoreRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.ResponseEntity
@@ -15,7 +14,7 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
     }
 
     fun createBookstore(dto: BookstoreTestDto): ResponseEntity<BookstoreTestDto> {
-        val request = CreateBookstoreRequest(dto.name, dto.location)
+        val request = CreateBookstoreRequestDto(dto.name, dto.location)
         return restTemplate.postForEntity(
             "/bookly/bookstores", request, BookstoreTestDto::class.java
         )

@@ -1,4 +1,4 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.inventory.infrastructure.rest
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter

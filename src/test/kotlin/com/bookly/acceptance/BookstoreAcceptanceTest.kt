@@ -42,3 +42,7 @@ class BookstoreAcceptanceTest {
         }
     }
 }
+data class CreateBookstoreRequestDto(
+    val name: String,
+    val location: Int
+)

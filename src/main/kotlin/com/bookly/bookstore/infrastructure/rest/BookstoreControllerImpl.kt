@@ -1,9 +1,9 @@
-package com.bookly.catalog.infrastructure.rest
+package com.bookly.bookstore.infrastructure.rest
 
-import com.bookly.catalog.application.BookstoreService
-import com.bookly.catalog.domain.model.BookstoreName
-import com.bookly.catalog.domain.model.Location
-import com.bookly.catalog.infrastructure.rest.BookstoreDto.Companion.fromDomain
+import com.bookly.bookstore.application.BookstoreService
+import com.bookly.bookstore.domain.model.BookstoreName
+import com.bookly.bookstore.domain.model.Location
+import com.bookly.bookstore.infrastructure.rest.BookstoreDto.Companion.fromDomain
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
