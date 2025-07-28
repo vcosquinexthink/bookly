@@ -32,6 +32,7 @@ class BookstoreInventoryControllerImpl(
         return ResponseEntity.ok(fromDomain(inventoryItem, book, bookstore))
     }
 
+    // todo: /{bookstoreId}/book/{isbn}/inventory/increment
     @PostMapping("/{bookstoreId}/book/{isbn}/stock")
     override fun updateInventory(
         @PathVariable bookstoreId: UUID,
