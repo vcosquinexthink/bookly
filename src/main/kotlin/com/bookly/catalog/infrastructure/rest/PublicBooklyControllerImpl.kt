@@ -4,13 +4,13 @@ import com.bookly.book.application.BookService
 import com.bookly.book.domain.model.Book
 import com.bookly.catalog.application.BookstoreService
 import com.bookly.catalog.application.InventoryService
-import com.bookly.catalog.domain.model.valueobject.BookstoreId
+import com.bookly.catalog.domain.model.BookstoreId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/api/public")
+@RequestMapping("/bookly/public")
 class PublicBooklyControllerImpl(
     private val bookstoreService: BookstoreService,
     private val bookService: BookService,

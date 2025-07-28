@@ -1,4 +1,4 @@
-package com.bookly.catalog.domain.model.valueobject
+package com.bookly.catalog.domain.model
 
 import java.util.UUID
 

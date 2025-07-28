@@ -2,7 +2,7 @@ package com.bookly.catalog.application
 
 import com.bookly.book.domain.model.Book
 import com.bookly.catalog.domain.model.InventoryItem
-import com.bookly.catalog.domain.model.valueobject.BookstoreId
+import com.bookly.catalog.domain.model.BookstoreId
 import org.springframework.stereotype.Service
 
 @Service

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/books")
+@RequestMapping("/bookly/books")
 class BookControllerImpl(
     private val bookService: BookService
 ) : BookController {

@@ -11,25 +11,25 @@ import java.util.*
 class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun createBook(bookDto: BookTestDto): ResponseEntity<BookTestDto> {
-        return restTemplate.postForEntity("/api/books", bookDto, BookTestDto::class.java)
+        return restTemplate.postForEntity("/bookly/books", bookDto, BookTestDto::class.java)
     }
 
     fun createBookstore(dto: BookstoreTestDto): ResponseEntity<BookstoreTestDto> {
         val request = CreateBookstoreRequest(dto.name, dto.location)
         return restTemplate.postForEntity(
-            "/api/bookstores/bookstores", request, BookstoreTestDto::class.java
+            "/bookly/bookstores/bookstores", request, BookstoreTestDto::class.java
         )
     }
 
     fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.getForEntity(
-            "/api/bookstores/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
+            "/bookly/bookstores/bookstores/$bookstoreId/book/$isbn/stock", InventoryItemTestDto::class.java
         )
     }
 
     fun stockBook(bookstoreId: UUID, isbn: String, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.postForEntity(
-            "/api/bookstores/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
+            "/bookly/bookstores/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
             null,
             InventoryItemTestDto::class.java
         )
@@ -40,7 +40,7 @@ class StoreTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
     fun searchBookByISBNNear(isbn: String, location: Int): ResponseEntity<Array<InventoryItemTestDto>> {
         val response = restTemplate.getForEntity(
-            "/api/public/inventory/search?isbn=$isbn&location=$location",
+            "/bookly/public/inventory/search?isbn=$isbn&location=$location",
             Array<InventoryItemTestDto>::class.java
         )
         return response
@@ -48,7 +48,7 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun searchBookstoresNear(location: Int): ResponseEntity<Array<BookstoreTestDto>> {
         val response = restTemplate.getForEntity(
-            "/api/public/bookstores/search?location=$location",
+            "/bookly/public/bookstores/search?location=$location",
             Array<BookstoreTestDto>::class.java
         )
         return response
@@ -56,7 +56,7 @@ class ClientTestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun getBookstoreCatalog(storeId: UUID): ResponseEntity<Array<BookstoreInventoryItemTestDto>> {
         val response = restTemplate.getForEntity(
-            "/api/public/bookstores/$storeId/catalog",
+            "/bookly/public/bookstores/$storeId/catalog",
             Array<BookstoreInventoryItemTestDto>::class.java
         )
         return response

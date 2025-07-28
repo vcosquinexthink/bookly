@@ -1,7 +1,7 @@
 package com.bookly.catalog.application
 
 import com.bookly.book.domain.model.Book
-import com.bookly.catalog.domain.model.valueobject.BookstoreId
+import com.bookly.catalog.domain.model.BookstoreId
 import org.junit.jupiter.api.Test
 import java.util.UUID.randomUUID
 

@@ -1,8 +1,8 @@
 package com.bookly.catalog.application
 
 import com.bookly.catalog.application.BookstoreService.BookstoreNotFoundException
-import com.bookly.catalog.domain.model.valueobject.BookstoreName
-import com.bookly.catalog.domain.model.valueobject.Location
+import com.bookly.catalog.domain.model.BookstoreName
+import com.bookly.catalog.domain.model.Location
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test

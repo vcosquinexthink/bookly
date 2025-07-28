@@ -1,55 +1,89 @@
 package com.bookly.catalog.infrastructure.rest
 
-import com.bookly.book.application.BookService
 import com.bookly.book.domain.model.Book
-import com.bookly.catalog.application.BookstoreService
-import com.bookly.catalog.application.InventoryService
+import com.bookly.book.infrastructure.rest.BookDto
+import com.bookly.catalog.domain.model.Bookstore
 import com.bookly.catalog.domain.model.InventoryItem
-import com.bookly.catalog.domain.model.valueobject.BookstoreName
-import com.bookly.catalog.domain.model.valueobject.Location
-import com.bookly.catalog.infrastructure.rest.BookstoreDto.Companion.fromDomain
-import com.bookly.catalog.infrastructure.rest.InventoryItemDto.Companion.fromDomain
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
 import java.util.*
 
-@RestController
-@RequestMapping("/api/bookstores/bookstores")
-class InternalBookstoreControllerImpl(
-    private val bookstoreService: BookstoreService,
-    private val bookService: BookService,
-    private val inventoryService: InventoryService
-) : InternalBookstoreController {
+@Tag(name = "Bookstores API", description = "Endpoints for managing bookstores and inventory")
+interface InternalBookstoreController {
 
-    @PostMapping
-    override fun createBookstore(
-        @RequestBody request: CreateBookstoreRequest
-    ): ResponseEntity<BookstoreDto> {
-        return ResponseEntity.ok(
-            fromDomain(bookstoreService.createBookstore(BookstoreName(request.name), Location(request.location)))
+    @Operation(
+        summary = "Create a new bookstore", description = "Register a new bookstore into the system"
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Bookstore created successfully",
+            content = [Content(schema = Schema(implementation = BookstoreDto::class))]
+        )]
+    )
+    fun createBookstore(request: CreateBookstoreRequest): ResponseEntity<BookstoreDto>
+
+    @Operation(
+        summary = "Get book stock information",
+        description = "Retrieve inventory information for a specific book in a bookstore"
+    )
+    @ApiResponses(
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Book stock retrieved successfully",
+            content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
+        ), ApiResponse(
+            responseCode = "404",
+            description = "Bookstore or book not found",
+            content = [Content(schema = Schema())]
+        )]
+    )
+    fun getBookStock(bookstoreId: UUID, isbn: String): ResponseEntity<InventoryItemDto>
+
+    @Operation(
+        summary = "Stock a book in a bookstore",
+        description = "Adds stock for a book in the specified bookstore.",
+        requestBody = RequestBody(
+            description = "Number of units to stock (default: 1)",
+            required = false,
+            content = [Content(schema = Schema(type = "integer", defaultValue = "1"))]
+        ),
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Book stocked successfully",
+                content = [Content(schema = Schema(implementation = InventoryItemDto::class))]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Bookstore or book not found",
+                content = [Content(schema = Schema())]
+            )
+        ]
+    )
+    fun stockBook(bookstoreId: UUID, isbn: String, count: Int): ResponseEntity<InventoryItemDto>
+}
+
+
+data class CreateBookstoreRequest(val name: String, val location: Int)
+
+data class BookstoreDto(val id: UUID, val name: String, val location: Int) {
+    companion object {
+        fun fromDomain(bookstore: Bookstore) =
+            BookstoreDto(bookstore.id.value, bookstore.name.value, bookstore.location.value)
+    }
+}
+
+data class InventoryItemDto(val book: BookDto, val total: Int, val available: Int, val bookstore: BookstoreDto) {
+    companion object {
+        fun fromDomain(item: InventoryItem, book: Book, bookstore: Bookstore) = InventoryItemDto(
+            BookDto.fromDomain(book), item.total, item.available, BookstoreDto.fromDomain(bookstore)
         )
-    }
-
-    @GetMapping("/{bookstoreId}/book/{isbn}/stock")
-    override fun getBookStock(
-        @PathVariable bookstoreId: UUID,
-        @PathVariable isbn: String
-    ): ResponseEntity<InventoryItemDto> {
-        val book = bookService.getBookById(Book.BookId(isbn))
-        val bookstore = bookstoreService.getBookstoreById(bookstoreId)
-        val inventoryItem: InventoryItem = inventoryService.getInventory(bookstore.id, Book.BookId(isbn));
-        return ResponseEntity.ok(fromDomain(inventoryItem, book, bookstore))
-    }
-
-    @PostMapping("/{bookstoreId}/book/{isbn}/stock")
-    override fun stockBook(
-        @PathVariable bookstoreId: UUID,
-        @PathVariable isbn: String,
-        @RequestParam(required = false, defaultValue = "1") count: Int
-    ): ResponseEntity<InventoryItemDto> {
-        val book = bookService.getBookById(Book.BookId(isbn))
-        val bookstore = bookstoreService.getBookstoreById(bookstoreId)
-        val inventoryItem = inventoryService.addInventoryItem(bookstore.id, Book.BookId(isbn), count)
-        return ResponseEntity.ok(fromDomain(inventoryItem, book, bookstore))
     }
 }
