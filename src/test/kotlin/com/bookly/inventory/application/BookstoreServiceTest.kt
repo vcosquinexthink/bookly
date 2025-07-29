@@ -12,7 +12,7 @@ import java.util.*
 class BookstoreServiceTest {
     @Test
     fun `should return bookstores ordered by proximity to given location`() {
-        val service = BookstoreService(mutableListOf())
+        val service = BookstoreService(mutableMapOf())
         val b1 = service.createBookstore(BookstoreName("A"), Location(10))
         val b2 = service.createBookstore(BookstoreName("B"), Location(5))
         val b3 = service.createBookstore(BookstoreName("C"), Location(7))
@@ -29,7 +29,7 @@ class BookstoreServiceTest {
 
     @Test
     fun `should return bookstore by ID`() {
-        val service = BookstoreService(mutableListOf())
+        val service = BookstoreService(mutableMapOf())
         val bookstore = service.createBookstore(BookstoreName("Test Store"), Location(10))
 
         val retrievedBookstore = service.getBookstoreById(bookstore.id.value)
@@ -47,7 +47,7 @@ class BookstoreServiceTest {
 
     @Test
     fun `should throw exception when retrieving non-existent bookstore by ID`() {
-        val service = BookstoreService(mutableListOf())
+        val service = BookstoreService(mutableMapOf())
         val nonExistentBookstoreId = UUID.randomUUID()
 
         val exception = org.junit.jupiter.api.assertThrows<BookstoreNotFoundException> {

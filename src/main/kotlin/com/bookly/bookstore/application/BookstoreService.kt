@@ -9,18 +9,18 @@ import java.util.*
 import kotlin.math.abs
 
 @Service
-class BookstoreService(private val bookstores: MutableList<Bookstore> = mutableListOf()) { //todo: replace with map
+class BookstoreService(private val bookstores: MutableMap<UUID, Bookstore> = mutableMapOf()) {
 
     fun createBookstore(name: BookstoreName, location: Location): Bookstore {
         val bookstore = Bookstore(BookstoreId(UUID.randomUUID()), name, location)
-        bookstores.add(bookstore)
+        bookstores[bookstore.id.value] = bookstore
         return bookstore
     }
 
     fun listBookstoresOrderedByProximity(location: Int): List<Bookstore> =
-        bookstores.sortedBy { abs(it.location.value - location) }
+        bookstores.values.sortedBy { abs(it.location.value - location) }
 
-    fun getBookstoreById(bookstoreId: UUID): Bookstore = bookstores.find { it.id.value == bookstoreId }
+    fun getBookstoreById(bookstoreId: UUID): Bookstore = bookstores[bookstoreId]
         ?: throw BookstoreNotFoundException("Bookstore with ID $bookstoreId not found")
 
     fun clearBookstores() {
