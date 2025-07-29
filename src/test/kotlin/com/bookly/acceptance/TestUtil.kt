@@ -47,9 +47,15 @@ class TestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         )
     }
 
-    fun updateInventory(bookstoreId: UUID, isbn: String, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
+    fun getBookInventory(bookstore: BookstoreTestDto, book: BookTestDto): ResponseEntity<InventoryItemTestDto> {
+        return restTemplate.getForEntity(
+            "/bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/inventory", InventoryItemTestDto::class.java
+        )
+    }
+
+    fun incrementInventory(bookstore: BookstoreTestDto, book: BookTestDto, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.postForEntity(
-            "/bookly/bookstores/$bookstoreId/book/$isbn/inventory/increment?count=$count",
+            "/bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/inventory/increment?count=$count",
             null,
             InventoryItemTestDto::class.java
         )
@@ -79,9 +85,9 @@ class TestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         return response
     }
 
-    fun reserveBook(bookstoreId: UUID, isbn: String): ResponseEntity<BooksReservationDto> {
+    fun reserveBook(bookstore: BookstoreTestDto, book: BookTestDto): ResponseEntity<BooksReservationDto> {
         val response = restTemplate.postForEntity(
-            "/bookly/bookstores/$bookstoreId/book/$isbn/reserve",
+            "/bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/reserve",
             null,
             BooksReservationDto::class.java
         )

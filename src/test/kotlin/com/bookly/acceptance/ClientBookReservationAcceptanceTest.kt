@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 class ClientBookReservationAcceptanceTest {
 
     @Autowired
-    lateinit var interactions: TestUtil
+    lateinit var client: TestUtil
 
     @Autowired
     lateinit var bookstoreService: BookstoreService
@@ -25,18 +25,18 @@ class ClientBookReservationAcceptanceTest {
     @BeforeEach
     fun setup() {
         bookstoreService.clearBookstores() // todo: remove
-        interactions.createBook(warAndPeaceBook)
-        huelvaBookstore = interactions.createBookstore(huelvaBookstore).body!!
-        interactions.updateInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
+        client.createBook(warAndPeaceBook)
+        huelvaBookstore = client.createBookstore(huelvaBookstore).body!!
+        client.incrementInventory(huelvaBookstore, warAndPeaceBook, 3)
     }
 
     @Test
     fun `clients reserve an available book`() {
-        interactions.reserveBook(huelvaBookstore.id!!, warAndPeaceBook.isbn).apply {
+        client.reserveBook(huelvaBookstore, warAndPeaceBook).apply {
             assert(statusCode.is2xxSuccessful)
             val reservation = body ?: throw AssertionError("Reservation body is null")
         }
-        interactions.getBookInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn).apply {
+        client.getBookInventory(huelvaBookstore, warAndPeaceBook).apply {
             assert(statusCode.is2xxSuccessful)
             val inventory = body ?: throw AssertionError("Inventory body is null")
             assert(inventory.total == 3) { "Expected 3 total books in inventory, but found ${inventory.total}" }

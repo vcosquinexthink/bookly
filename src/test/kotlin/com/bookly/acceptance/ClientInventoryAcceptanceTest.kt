@@ -36,11 +36,11 @@ class ClientInventoryAcceptanceTest {
         huelvaBookstore = interactions.createBookstore(huelvaBookstore).body!!
         zaragozaBookstore = interactions.createBookstore(zaragozaBookstore).body!!
         smallGuadalajaraBookstore = interactions.createBookstore(smallGuadalajaraBookstore).body!!
-        interactions.updateInventory(huelvaBookstore.id!!, warAndPeaceBook.isbn, 3)
-        interactions.updateInventory(huelvaBookstore.id!!, pachinkoBook.isbn, 2)
-        interactions.updateInventory(huelvaBookstore.id!!, antsBook.isbn, 1)
-        interactions.updateInventory(zaragozaBookstore.id!!, warAndPeaceBook.isbn, 1)
-        interactions.updateInventory(smallGuadalajaraBookstore.id!!, warAndPeaceBook.isbn, 0)
+        interactions.incrementInventory(huelvaBookstore, warAndPeaceBook, 3)
+        interactions.incrementInventory(huelvaBookstore, pachinkoBook, 2)
+        interactions.incrementInventory(huelvaBookstore, antsBook, 1)
+        interactions.incrementInventory(zaragozaBookstore, warAndPeaceBook, 1)
+        interactions.incrementInventory(smallGuadalajaraBookstore, warAndPeaceBook, 0)
     }
 
     @Test
