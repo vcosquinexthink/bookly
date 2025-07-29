@@ -3,6 +3,7 @@ package com.bookly.inventory.application
 import com.bookly.book.domain.model.Book
 import com.bookly.bookstore.domain.model.BookstoreId
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.util.UUID.randomUUID
 
 class InventoryServiceTest {
@@ -63,5 +64,63 @@ class InventoryServiceTest {
         assert(inventories.any { it.bookId == bookId2 && it.total == 101 && it.available == 101 }) {
             "Inventory for bookId2 should have total 101, available 101"
         }
+    }
+
+    @Test
+    fun `book reservation should decrement available units by one`() {
+        val bookstoreId = BookstoreId(randomUUID())
+        val bookId1 = Book.BookId("123")
+        val service = InventoryService(mutableMapOf())
+        service.addInventoryItem(bookstoreId, bookId1, 3)
+        val inventory = service.getInventoriesForBookstore(bookstoreId).first()
+        assert(inventory.bookId.isbn == "123")
+        assert(inventory.total == 3)
+        assert(inventory.available == 3)
+
+        service.reserveBook(bookstoreId, bookId1)
+
+        val newInventory = service.getInventoriesForBookstore(bookstoreId).first()
+        assert(newInventory.bookId.isbn == "123")
+        assert(newInventory.total == 3)
+        assert(newInventory.available == 2)
+    }
+
+    @Test
+    fun `book reservation can't be performed when no available units`() {
+        val bookstoreId = BookstoreId(randomUUID())
+        val bookId = Book.BookId("123")
+        val service = InventoryService(mutableMapOf())
+
+        // Add inventory with 1 unit
+        service.addInventoryItem(bookstoreId, bookId, 1)
+
+        // Reserve the only available unit
+        service.reserveBook(bookstoreId, bookId)
+
+        // Verify inventory state: total=1, available=0
+        val inventory = service.getInventory(bookstoreId, bookId)
+        assert(inventory.total == 1)
+        assert(inventory.available == 0)
+
+        // Attempt to reserve another unit should throw exception
+        val exception = assertThrows<BookNotAvailableException> {
+            service.reserveBook(bookstoreId, bookId)
+        }
+
+        assert(exception.message == "Book not available for reservation")
+    }
+
+    @Test
+    fun `book reservation can't be performed when no inventory`() {
+        val bookstoreId = BookstoreId(randomUUID())
+        val bookId = Book.BookId("123")
+        val service = InventoryService(mutableMapOf())
+
+        // Attempt to reserve should throw exception
+        val exception = assertThrows<BookNotAvailableException> {
+            service.reserveBook(bookstoreId, bookId)
+        }
+
+        assert(exception.message == "Book not available for reservation")
     }
 }

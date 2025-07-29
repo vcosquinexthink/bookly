@@ -11,6 +11,7 @@ import com.bookly.inventory.domain.model.InventoryItem
 import com.bookly.inventory.infrastructure.rest.InventoryItemDto.Companion.fromDomain
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.util.*
 
 @RestController
@@ -64,16 +65,15 @@ class BookstoreInventoryControllerImpl(
     ): ResponseEntity<BooksReservationDto> {
         val book = bookService.getBookById(Book.BookId(isbn))
         val bookstore = bookstoreService.getBookstoreById(bookstoreId)
-
-        // For now, creating a mock reservation - you'll need to implement actual reservation logic
-        val reservationDto = BooksReservationDto(
-            reservationId = UUID.randomUUID(),
-            book = BookDto.fromDomain(book),
-            bookstore = BookstoreDto.fromDomain(bookstore),
-            reservedAt = java.time.LocalDateTime.now().toString(),
-            status = "RESERVED"
+        val reservationId = inventoryService.reserveBook(bookstore.id, Book.BookId(isbn))
+        return ResponseEntity.ok(
+            BooksReservationDto(
+                reservationId = reservationId,
+                book = BookDto.fromDomain(book),
+                bookstore = BookstoreDto.fromDomain(bookstore),
+                reservedAt = LocalDateTime.now().toString(),
+                status = "RESERVED"
+            )
         )
-
-        return ResponseEntity.ok(reservationDto)
     }
 }

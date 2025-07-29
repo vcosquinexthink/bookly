@@ -32,6 +32,7 @@ class ClientBookReservationAcceptanceTest {
 
     @Test
     fun `clients reserve an available book`() {
+        // todo: add reservation details, user, reservation comments, etc.
         client.reserveBook(huelvaBookstore, warAndPeaceBook).apply {
             assert(statusCode.is2xxSuccessful)
             val reservation = body ?: throw AssertionError("Reservation body is null")
@@ -40,17 +41,14 @@ class ClientBookReservationAcceptanceTest {
             assert(statusCode.is2xxSuccessful)
             val inventory = body ?: throw AssertionError("Inventory body is null")
             assert(inventory.total == 3) { "Expected 3 total books in inventory, but found ${inventory.total}" }
-            // todo: assert(inventory.available == 2) { "Expected 2 available books in inventory, but found ${inventory.available}" }
+            assert(inventory.available == 2) { "Expected 2 available books in inventory, but found ${inventory.available}" }
         }
-    }
-
-    @Test
-    fun `clients cant reserve a book with no availability`() {
-        // todo: implement this test (400 error)
     }
 
     @Test
     fun `clients can claim a reserved book`() {
         // todo: implement this test (remove reservation and decrease total)
+        // /bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/reserve/${reservationId}/claim
+        // /bookly/reservations/${reservationId}/claim
     }
 }
