@@ -49,7 +49,7 @@ class TestUtil(@Autowired private val restTemplate: TestRestTemplate) {
 
     fun updateInventory(bookstoreId: UUID, isbn: String, count: Int = 1): ResponseEntity<InventoryItemTestDto> {
         return restTemplate.postForEntity(
-            "/bookly/bookstores/$bookstoreId/book/$isbn/stock?count=$count",
+            "/bookly/bookstores/$bookstoreId/book/$isbn/inventory/increment?count=$count",
             null,
             InventoryItemTestDto::class.java
         )

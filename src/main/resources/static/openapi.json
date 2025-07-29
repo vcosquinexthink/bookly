@@ -64,7 +64,7 @@
         }
       }
     },
-    "/bookly/bookstores/{bookstoreId}/book/{isbn}/stock": {
+    "/bookly/bookstores/{bookstoreId}/book/{isbn}/inventory/increment": {
       "post": {
         "tags": [
           "Bookstore Inventory API"
