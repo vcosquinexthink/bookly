@@ -20,11 +20,12 @@ class InventoryControllerImpl(
         @RequestParam isbn: String, @RequestParam location: Int
     ): ResponseEntity<List<InventoryItemDto>> {
         val book = bookService.getBookById(Book.BookId(isbn))
-        return ResponseEntity.ok(
-            bookstoreService.listBookstoresOrderedByProximity(location).flatMap { bookstore ->
-                inventoryService.getInventoriesForBookstore(bookstore.id).filter { it.bookId == Book.BookId(isbn) }
-                    .map { item -> InventoryItemDto.fromDomain(item, book, bookstore) }
-            }
-        )
+        val orderedBookstores = bookstoreService.listBookstoresOrderedByProximity(location)
+        val result = orderedBookstores.flatMap { bookstore ->
+            inventoryService.getInventoriesForBookstoreAndBook(bookstore.id, book.getBookId())
+                .filter { it.bookId == Book.BookId(isbn) }
+                .map { item -> InventoryItemDto.fromDomain(item, book, bookstore) }
+        }
+        return ResponseEntity.ok(result)
     }
 }

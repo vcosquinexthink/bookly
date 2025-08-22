@@ -38,7 +38,7 @@ class BookstoreAcceptanceTest {
             "Expected book ISBN to be '123', but got '${inventory.book.isbn}'"
         }
         assert(inventory.total == 3) {
-            "Expected total to be 0, but got ${inventory.total}"
+            "Expected total to be 3, but got ${inventory.total}"
         }
     }
 }

@@ -29,6 +29,12 @@ class InventoryService(private val inventories: MutableMap<Pair<BookstoreId, Boo
             .toTypedArray()
     }
 
+    fun getInventoriesForBookstoreAndBook(bookstoreId: BookstoreId, bookId: Book.BookId): Array<InventoryItem> {
+        return inventories.filter { it.key.first == bookstoreId && it.key.second == bookId }
+            .map { it.value }
+            .toTypedArray()
+    }
+
     fun reserveBook(bookstoreId: BookstoreId, bookId: Book.BookId): UUID {
         val key = Pair(bookstoreId, bookId)
         val item = inventories[key] ?: throw BookNotAvailableException("Book not available for reservation")

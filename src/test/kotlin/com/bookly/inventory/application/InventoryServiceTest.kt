@@ -46,7 +46,7 @@ class InventoryServiceTest {
     }
 
     @Test
-    fun `should retrieve inventories for bookstore`() {
+    fun `should retrieve inventories for bookstore and book`() {
         val bookstoreId = BookstoreId(randomUUID())
         val bookId1 = Book.BookId("123")
         val bookId2 = Book.BookId("456")
@@ -56,13 +56,10 @@ class InventoryServiceTest {
         service.addInventoryItem(bookstoreId, bookId1, 3)
         service.addInventoryItem(bookstoreId, bookId2, 101)
 
-        val inventories = service.getInventoriesForBookstore(bookstoreId)
-        assert(inventories.size == 2) { "Expected 2 inventory items, got ${inventories.size}" }
+        val inventories = service.getInventoriesForBookstoreAndBook(bookstoreId, bookId1)
+        assert(inventories.size == 1) { "Expected 1 inventory items, got ${inventories.size}" }
         assert(inventories.any { it.bookId == bookId1 && it.total == 3 && it.available == 3 }) {
             "Inventory for bookId1 should have total 3, available 3"
-        }
-        assert(inventories.any { it.bookId == bookId2 && it.total == 101 && it.available == 101 }) {
-            "Inventory for bookId2 should have total 101, available 101"
         }
     }
 
