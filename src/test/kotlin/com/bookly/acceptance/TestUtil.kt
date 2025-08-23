@@ -23,7 +23,11 @@ data class BookstoreInventoryItemTestDto(
 
 data class BookTestDto(val isbn: String, val title: String, val author: String)
 
+data class ClientTestDto(val id: UUID)
+
 data class CreateBookstoreRequestDto(val name: String, val location: Int)
+
+data class ReservationBooksReservationDto(val bookstoreId: UUID, val isbn: String, val clientId: UUID)
 
 class BooksReservationDto(val reservationId: UUID)
 
@@ -85,10 +89,10 @@ class TestUtil(@Autowired private val restTemplate: TestRestTemplate) {
         return response
     }
 
-    fun reserveBook(bookstore: BookstoreTestDto, book: BookTestDto): ResponseEntity<BooksReservationDto> {
+    fun reserveBook(bookstore: BookstoreTestDto, book: BookTestDto, client: ClientTestDto): ResponseEntity<BooksReservationDto> {
         val response = restTemplate.postForEntity(
-            "/bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/reserve",
-            null,
+            "/bookly/reservation",
+            ReservationBooksReservationDto(bookstore.id!!, book.isbn, client.id),
             BooksReservationDto::class.java
         )
         return response

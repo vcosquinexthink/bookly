@@ -71,3 +71,55 @@ com.bookly
 
 ## Contact
 For questions or contributions, please contact the maintainers or open an issue in the repository.
+
+#### API
+### Location & Discovery Context
+# Search for books by location and criteria
+GET /books?location={lat},{lng}&radius={km}&query={searchTerm}&genre={genre}
+# Search for bookstores by location
+GET /bookstores?location={lat},{lng}&radius={km}&name={storeName}
+# Get detailed book information
+GET /books/{isbn}
+# Get bookstore details and their inventory
+GET /bookstores/{bookstoreId}
+GET /bookstores/{bookstoreId}/inventory?available=true&genre={genre}
+
+### User Management Context
+# User registration and profile management
+POST /users
+GET /users/{userId}
+PUT /users/{userId}
+# User's rental history and current reservations
+GET /users/{userId}/reservations?status={active|completed|cancelled}
+GET /users/{userId}/rental-history
+
+### Bookstore management of content
+# Bookstore registration and profile
+POST /bookstores
+GET /bookstores/{bookstoreId}
+PUT /bookstores/{bookstoreId}
+# Inventory management for bookstore owners
+GET /bookstores/{bookstoreId}/inventory
+POST /bookstores/{bookstoreId}/inventory/books
+PUT /bookstores/{bookstoreId}/inventory/books/{isbn}
+DELETE /bookstores/{bookstoreId}/inventory/books/{isbn}
+# Rental settings (prices, durations)
+GET /bookstores/{bookstoreId}/rental-settings
+PUT /bookstores/{bookstoreId}/rental-settings
+
+### Book Rental Context
+# Reservation lifecycle
+POST /reservations
+GET /reservations/{reservationId}
+PUT /reservations/{reservationId}/confirm    # Confirm pickup
+PUT /reservations/{reservationId}/return     # Return book
+DELETE /reservations/{reservationId}         # Cancel reservation
+# Check book availability at specific bookstore
+GET /bookstores/{bookstoreId}/books/{isbn}/availability
+
+### Inventory Management Context
+# Real-time availability checking
+GET /inventory/books/{isbn}/availability?location={lat},{lng}&radius={km}
+# Inventory updates (for bookstore owners)
+PUT /inventory/books/{isbn}/status
+GET /inventory/books/{isbn}/rental-history

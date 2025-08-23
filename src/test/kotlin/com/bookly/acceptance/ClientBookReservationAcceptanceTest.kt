@@ -8,6 +8,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle.PER_METHOD
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import java.util.*
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(PER_METHOD)
@@ -20,7 +21,8 @@ class ClientBookReservationAcceptanceTest {
     lateinit var bookstoreService: BookstoreService
 
     val warAndPeaceBook = BookTestDto("123", "War and peace", "Leon Tolstoi")
-    var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", 1)
+    var huelvaBookstore = BookstoreTestDto("Huelva's Literary Haven", 1, UUID.randomUUID())
+    var client1 = ClientTestDto(UUID.randomUUID())
 
     @BeforeEach
     fun setup() {
@@ -33,7 +35,7 @@ class ClientBookReservationAcceptanceTest {
     @Test
     fun `clients reserve an available book`() {
         // todo: add reservation details, user, reservation comments, etc.
-        client.reserveBook(huelvaBookstore, warAndPeaceBook).apply {
+        client.reserveBook(huelvaBookstore, warAndPeaceBook, client1).apply {
             assert(statusCode.is2xxSuccessful)
             val reservation = body ?: throw AssertionError("Reservation body is null")
         }
@@ -47,6 +49,8 @@ class ClientBookReservationAcceptanceTest {
 
     @Test
     fun `clients can claim a reserved book`() {
+
+
         // todo: implement this test (remove reservation and decrease total)
         // /bookly/bookstores/${bookstore.id!!}/book/${book.isbn}/reserve/${reservationId}/claim
         // /bookly/reservations/${reservationId}/claim
